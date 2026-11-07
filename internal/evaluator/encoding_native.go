@@ -197,4 +197,7 @@ func init() {
 	RegisterNativeFunction("urlDecode", nativeURLDecode)
 	RegisterNativeFunction("hexEncode", nativeHexEncode)
 	RegisterNativeFunction("hexDecode", nativeHexDecode)
+
+	RegisterNativeFunction("json.jsonEncode", nativeJSONEncode)
+	RegisterNativeFunction("json.jsonDecode", nativeJSONDecode)
 }

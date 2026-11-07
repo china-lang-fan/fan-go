@@ -160,4 +160,5 @@ func nativeHTTPRequest(_ *Runtime, args []object.Object) ([]object.Object, error
 
 func init() {
 	RegisterNativeFunction("httpRequest", nativeHTTPRequest)
+	RegisterNativeFunction("http.httpRequest", nativeHTTPRequest)
 }

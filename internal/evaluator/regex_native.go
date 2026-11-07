@@ -211,4 +211,13 @@ func init() {
 	RegisterNativeFunction("regexReplace", nativeRegexReplace)
 	RegisterNativeFunction("regexSplit", nativeRegexSplit)
 	RegisterNativeFunction("regexQuote", nativeRegexQuote)
+
+	RegisterNativeFunction("regex.regexMatch", nativeRegexMatch)
+	RegisterNativeFunction("regex.regexFind", nativeRegexFind)
+	RegisterNativeFunction("regex.regexFindAll", nativeRegexFindAll)
+	RegisterNativeFunction("regex.regexFindGroups", nativeRegexFindGroups)
+	RegisterNativeFunction("regex.regexFindAllGroups", nativeRegexFindAllGroups)
+	RegisterNativeFunction("regex.regexReplace", nativeRegexReplace)
+	RegisterNativeFunction("regex.regexSplit", nativeRegexSplit)
+	RegisterNativeFunction("regex.regexQuote", nativeRegexQuote)
 }
