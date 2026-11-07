@@ -44,16 +44,16 @@
 ### Linux / macOS
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/china-lang-fan/fan/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/china-lang-fan/fan-go/main/scripts/install.sh | bash
 ```
 
 ### Windows
 
 ```powershell
-irm https://raw.githubusercontent.com/china-lang-fan/fan/main/scripts/install.ps1 | iex
+irm https://raw.githubusercontent.com/china-lang-fan/fan-go/main/scripts/install.ps1 | iex
 ```
 
-也可以从 [GitHub Releases](https://github.com/china-lang-fan/fan/releases) 下载对应平台的压缩包。
+也可以从 [GitHub Releases](https://github.com/china-lang-fan/fan-go/releases) 下载对应平台的压缩包。
 
 安装后验证：
 

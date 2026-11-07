@@ -7,7 +7,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 $Owner = "china-lang-fan"
-$Repo = "fan"
+$Repo = "fan-go"
 $Binary = "fan.exe"
 
 function Get-Architecture {

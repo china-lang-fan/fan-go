@@ -2,7 +2,7 @@
 set -e
 
 OWNER="china-lang-fan"
-REPO="fan"
+REPO="fan-go"
 BINARY="fan"
 
 usage() {
