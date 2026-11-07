@@ -17,7 +17,7 @@ func setupNetworkModule(t *testing.T) (*Environment, string) {
 	dir := t.TempDir()
 	files := []string{"系统.凡", "字典.凡", "文件.凡", "编码.凡", "转换.凡", "网络.凡"}
 	for _, name := range files {
-		data, err := os.ReadFile(filepath.Join("..", "..", "sdk", name))
+		data, err := os.ReadFile(filepath.Join("..", "..", "..", "fan-sdk", name))
 		if err != nil {
 			t.Fatalf("读取 %s 失败：%v", name, err)
 		}

@@ -13,14 +13,14 @@ import (
 func setupStringModule(t *testing.T) *Environment {
 	t.Helper()
 	dir := t.TempDir()
-	data, err := os.ReadFile(filepath.Join("..", "..", "sdk", "字符串.凡"))
+	data, err := os.ReadFile(filepath.Join("..", "..", "..", "fan-sdk", "字符串.凡"))
 	if err != nil {
 		t.Fatalf("读取文本模块失败：%v", err)
 	}
 	if err := os.WriteFile(filepath.Join(dir, "字符串.凡"), data, 0600); err != nil {
 		t.Fatalf("写入文本模块失败：%v", err)
 	}
-	systemData, err := os.ReadFile(filepath.Join("..", "..", "sdk", "系统.凡"))
+	systemData, err := os.ReadFile(filepath.Join("..", "..", "..", "fan-sdk", "系统.凡"))
 	if err != nil {
 		t.Fatalf("读取系统模块失败：%v", err)
 	}

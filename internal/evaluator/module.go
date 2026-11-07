@@ -53,11 +53,18 @@ func defaultModulesDirs(base string) []string {
 		seen[abs] = true
 		dirs = append(dirs, abs)
 	}
+	// fan-sdk 是共享标准库目录，可通过 FAN_SDK 显式指定；未设置时回退到
+	// 可执行文件旁与系统安装位置。搜索顺序与 Rust 版 loader 保持一致。
 	add(base)
+	if env := os.Getenv("FAN_SDK"); env != "" {
+		add(env)
+	}
 	if executable, err := os.Executable(); err == nil {
 		executableDir := filepath.Dir(executable)
 		add(executableDir)
 		add(filepath.Join(executableDir, "sdk"))
+		add(filepath.Join(executableDir, "..", "sdk"))
+		add(filepath.Join(executableDir, "..", "..", "sdk"))
 		add(filepath.Join(executableDir, "..", "share", "fan", "sdk"))
 		add(filepath.Join(executableDir, "..", "..", "share", "fan", "sdk"))
 	}

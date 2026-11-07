@@ -9,7 +9,7 @@ import (
 // TestSDKBaselineNoUndefined 保证对整个 SDK 静态扫描时，
 // undefined-name 与 import-not-found 不产生误报。
 func TestSDKBaselineNoUndefined(t *testing.T) {
-	sdkDir := filepath.Join("..", "..", "sdk")
+	sdkDir := filepath.Join("..", "..", "..", "fan-sdk")
 	files, err := filepath.Glob(filepath.Join(sdkDir, "*.凡"))
 	if err != nil {
 		t.Fatal(err)

@@ -14,7 +14,7 @@ func setupTimeModule(t *testing.T) *Environment {
 	t.Helper()
 	dir := t.TempDir()
 	for _, name := range []string{"系统.凡", "时间.凡"} {
-		data, err := os.ReadFile(filepath.Join("..", "..", "sdk", name))
+		data, err := os.ReadFile(filepath.Join("..", "..", "..", "fan-sdk", name))
 		if err != nil {
 			t.Fatalf("读取 %s 失败：%v", name, err)
 		}

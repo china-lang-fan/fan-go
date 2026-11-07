@@ -11,7 +11,7 @@ import (
 
 func TestSystemModuleWrapsNativeFunctions(t *testing.T) {
 	dir := t.TempDir()
-	data, err := os.ReadFile(filepath.Join("..", "..", "sdk", "系统.凡"))
+	data, err := os.ReadFile(filepath.Join("..", "..", "..", "fan-sdk", "系统.凡"))
 	if err != nil {
 		t.Fatalf("读取系统模块失败：%v", err)
 	}

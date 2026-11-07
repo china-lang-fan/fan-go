@@ -13,7 +13,7 @@ import (
 
 func copySDKFile(t *testing.T, dir, name string) {
 	t.Helper()
-	data, err := os.ReadFile(filepath.Join("..", "..", "sdk", name))
+	data, err := os.ReadFile(filepath.Join("..", "..", "..", "fan-sdk", name))
 	if err != nil {
 		t.Fatalf("读取 %s 失败：%v", name, err)
 	}
