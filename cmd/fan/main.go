@@ -30,15 +30,15 @@ func run(args []string) error {
 		return nil
 	}
 	switch args[0] {
-	case "version", "-v", "--version":
+	case "版本", "version", "-v", "--version":
 		fmt.Println("凡语言", version, "（命令名：fan）")
 		return nil
-	case "run":
+	case "运行", "run":
 		if len(args) < 2 {
 			return fmt.Errorf("用法：fan run <脚本.fan> [参数...]")
 		}
 		return runFile(args[1], args[2:])
-	case "test":
+	case "测试", "test":
 		target := "."
 		if len(args) >= 2 {
 			target = args[1]
@@ -51,11 +51,11 @@ func run(args []string) error {
 			return fmt.Errorf("测试失败")
 		}
 		return nil
-	case "repl":
+	case "交互", "repl":
 		return runREPL(os.Stdin, os.Stdout)
 	case "lsp":
 		return lsp.NewServer(os.Stdin, os.Stdout).Run()
-	case "help", "-h", "--help":
+	case "帮助", "help", "-h", "--help":
 		printUsage()
 		return nil
 	default:
@@ -136,10 +136,12 @@ func runREPL(in io.Reader, out io.Writer) error {
 func printUsage() {
 	fmt.Println("凡语言 —— 中文通用脚本语言（命令名：fan）")
 	fmt.Println("用法：")
-	fmt.Println("  fan run <脚本.fan> [参数...]   运行脚本")
-	fmt.Println("  fan test [路径]      运行测试")
-	fmt.Println("  fan repl             进入交互模式")
-	fmt.Println("  fan lsp              启动语言服务器（供编辑器接入）")
-	fmt.Println("  fan version          显示版本")
-	fmt.Println("  fan help             显示帮助")
+	fmt.Println("  fan 运行|run <脚本.fan> [参数...]   运行脚本")
+	fmt.Println("  fan 测试|test [路径]                运行测试")
+	fmt.Println("  fan 交互|repl                       进入交互模式")
+	fmt.Println("  fan lsp                             启动语言服务器（供编辑器接入）")
+	fmt.Println("  fan 版本|version                    显示版本")
+	fmt.Println("  fan 帮助|help                       显示帮助")
+	fmt.Println()
+	fmt.Println("模块搜索目录：脚本所在目录 → 环境变量 FAN_SDK → 可执行文件旁 → 系统安装位置。")
 }

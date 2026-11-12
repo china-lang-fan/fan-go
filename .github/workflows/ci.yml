@@ -9,11 +9,20 @@ on:
 permissions:
   contents: read
 
+env:
+  # 标准库位置：模块单测与 `fan test` 端到端测试都读它
+  FAN_SDK: ${{ github.workspace }}/fan-sdk
+
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: 取出标准库
+        uses: actions/checkout@v4
+        with:
+          repository: china-lang-fan/fan-sdk
+          path: fan-sdk
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
@@ -33,6 +42,8 @@ jobs:
         run: go build -trimpath -ldflags="-s -w -X main.version=ci-${{ github.sha }}" -o fan ./cmd/fan
       - name: 验证编译产物
         run: ./fan version
+      - name: 标准库测试（fan test）
+        run: ./fan test "$FAN_SDK/测试"
 
   cross-build:
     runs-on: ubuntu-latest

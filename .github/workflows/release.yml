@@ -1,5 +1,8 @@
 name: release
 
+# 打 v 开头的 tag 触发：先跑一遍门禁，再为各平台产出安装包挂到 Release。
+# 安装包内容 = fan 可执行文件 + 标准库（sdk/ 目录）。
+
 on:
   push:
     tags:
@@ -8,6 +11,10 @@ on:
 permissions:
   contents: write
 
+env:
+  # 标准库位置：门禁里的标准库测试读它
+  FAN_SDK: ${{ github.workspace }}/fan-sdk
+
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
@@ -15,13 +22,36 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      # 标准库由 Go 版与 Rust 版共用，单独成仓，不放在实现仓库内
+      - name: 取出标准库
+        uses: actions/checkout@v4
+        with:
+          repository: china-lang-fan/fan-sdk
+          path: fan-sdk
+
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+
       - name: 发布前检查
         run: |
           go vet ./...
           go test ./...
+
+      - name: 标准库测试（fan test）
+        run: |
+          go build -o fan ./cmd/fan
+          ./fan test "$FAN_SDK/测试"
+
+      # GoReleaser 按 .goreleaser.yml 把 sdk/** 打进安装包，
+      # 这里把共享标准库组装成它期望的 sdk/ 目录布局。
+      - name: 组装标准库到 sdk/
+        run: |
+          mkdir -p sdk
+          cp -R fan-sdk/库 fan-sdk/测试 sdk/
+          cp fan-sdk/README.md fan-sdk/LICENSE sdk/
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
