@@ -261,6 +261,23 @@ func init() {
 	RegisterBuiltinClass("test", nil)
 	RegisterNativeFunction("print", nativePrint)
 	RegisterNativeFunction("打印", nativePrint)
+	// 标签工具模块（fan-sdk/库/标签工具.凡）的注册入口，与 Rust 版
+	// fan-ext-tag / 默认回落暴露的原生名保持一致。
+	RegisterNativeFunction("tag.tagRegisterHandler", func(rt *Runtime, args []object.Object) ([]object.Object, error) {
+		if len(args) != 2 {
+			return nil, fmt.Errorf("注册标签处理 需要 2 个参数")
+		}
+		tagName, ok := args[0].(*object.String)
+		if !ok {
+			return nil, fmt.Errorf("标签名必须是字符串")
+		}
+		fn, ok := args[1].(*Function)
+		if !ok {
+			return nil, fmt.Errorf("标签处理器必须是函数")
+		}
+		rt.registerFanTagHandler(tagName.Value, fn)
+		return []object.Object{object.Null}, nil
+	})
 	RegisterNativeFunction("测试.加一", func(_ *Runtime, args []object.Object) ([]object.Object, error) {
 		if len(args) != 1 {
 			return nil, fmt.Errorf("测试.加一 需要 1 个参数")
