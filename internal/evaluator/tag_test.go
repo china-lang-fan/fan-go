@@ -173,7 +173,7 @@ func TestFanTagHandlerReadsCurrentCallable(t *testing.T) {
 	if _, _, err := runSourceWithOutput(t, src, &buf); err != nil {
 		t.Fatalf("运行错误：%v", err)
 	}
-	if buf.String() != "<函数 测试>\n" {
+	if buf.String() != "<函数 测试>" {
 		t.Fatalf("当前实现读取错误：%q", buf.String())
 	}
 }

@@ -16,6 +16,7 @@ var builtins = map[string]builtinFn{
 	"长度":     builtinLength,
 	"追加":     builtinAppend,
 	"打印":     nil,
+	"打印行":    nil,
 	"错误":     builtinError,
 	"注册标签处理": nil,
 	"print":  nil,
@@ -27,11 +28,14 @@ var builtins = map[string]builtinFn{
 	"fail":   builtinFail,
 }
 
-// runtimeBuiltin 处理需要访问运行实例的内建函数（打印/注册标签处理）。
+// runtimeBuiltin 处理需要访问运行实例的内建函数（打印/打印行/注册标签处理）。
 func runtimeBuiltin(rt *Runtime, name string, pos ast.Position, args []object.Object) (object.Object, bool, error) {
 	switch name {
 	case "打印", "print":
-		writeObjects(rt.Stdout(), args)
+		rt.printObjects(args)
+		return object.Null, true, nil
+	case "打印行":
+		rt.printLine(args)
 		return object.Null, true, nil
 	case "注册标签处理":
 		if len(args) != 2 {
@@ -85,13 +89,45 @@ func builtinAppend(pos ast.Position, args []object.Object) (object.Object, error
 	return &object.Array{Elements: elems}, nil
 }
 
-// writeObjects 将对象按空格连接并输出一行。
-func writeObjects(w io.Writer, args []object.Object) {
-	parts := make([]string, 0, len(args))
-	for _, a := range args {
-		parts = append(parts, object.Format(a))
+// printArgsTo 按凡语言打印语义把对象渲染为文本：
+// 单个数组实参展开元素、以空格连接；多个实参原样逐个拼接、不插分隔。
+func printArgsTo(w io.Writer, args []object.Object, newline bool) {
+	var text string
+	switch len(args) {
+	case 0:
+		text = ""
+	case 1:
+		if elements, ok := args[0].(*object.Array); ok {
+			parts := make([]string, 0, len(elements.Elements))
+			for _, e := range elements.Elements {
+				parts = append(parts, object.Format(e))
+			}
+			text = strings.Join(parts, " ")
+		} else {
+			text = object.Format(args[0])
+		}
+	default:
+		var b strings.Builder
+		for _, a := range args {
+			b.WriteString(object.Format(a))
+		}
+		text = b.String()
 	}
-	fmt.Fprintln(w, strings.Join(parts, " "))
+	if newline {
+		fmt.Fprintln(w, text)
+	} else {
+		fmt.Fprint(w, text)
+	}
+}
+
+// writeObjects 打印（不换行），保留供内部沿用的旧入口名。
+func writeObjects(w io.Writer, args []object.Object) {
+	printArgsTo(w, args, false)
+}
+
+// writeLineObjects 打印并在末尾追加换行。
+func writeLineObjects(w io.Writer, args []object.Object) {
+	printArgsTo(w, args, true)
 }
 
 func builtinError(pos ast.Position, args []object.Object) (object.Object, error) {

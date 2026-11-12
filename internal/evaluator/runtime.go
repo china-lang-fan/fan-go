@@ -167,13 +167,11 @@ func (r *Runtime) resolveClass(name string, env *Environment) (*Class, bool) {
 }
 
 func (r *Runtime) printObjects(args []object.Object) {
-	values := args
-	if len(args) == 1 {
-		if elements, ok := args[0].(*object.Array); ok {
-			values = elements.Elements
-		}
-	}
-	writeObjects(r.Stdout(), values)
+	writeObjects(r.Stdout(), args)
+}
+
+func (r *Runtime) printLine(args []object.Object) {
+	writeLineObjects(r.Stdout(), args)
 }
 
 // NativePrint 供内部与原生模块使用的打印入口，输出到本实例。

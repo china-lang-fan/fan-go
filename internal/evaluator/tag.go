@@ -261,6 +261,7 @@ func init() {
 	RegisterBuiltinClass("test", nil)
 	RegisterNativeFunction("print", nativePrint)
 	RegisterNativeFunction("打印", nativePrint)
+	RegisterNativeFunction("打印行", nativePrintLine)
 	// 标签工具模块（fan-sdk/库/标签工具.凡）的注册入口，与 Rust 版
 	// fan-ext-tag / 默认回落暴露的原生名保持一致。
 	RegisterNativeFunction("tag.tagRegisterHandler", func(rt *Runtime, args []object.Object) ([]object.Object, error) {
@@ -294,13 +295,15 @@ func nativePrint(rt *Runtime, args []object.Object) ([]object.Object, error) {
 	if rt == nil {
 		rt = NewRuntime()
 	}
-	values := args
-	if len(args) == 1 {
-		if elements, ok := args[0].(*object.Array); ok {
-			values = elements.Elements
-		}
+	rt.printObjects(args)
+	return []object.Object{object.Null}, nil
+}
+
+func nativePrintLine(rt *Runtime, args []object.Object) ([]object.Object, error) {
+	if rt == nil {
+		rt = NewRuntime()
 	}
-	writeObjects(rt.Stdout(), values)
+	rt.printLine(args)
 	return []object.Object{object.Null}, nil
 }
 

@@ -159,8 +159,8 @@ func TestBuiltinPrint(t *testing.T) {
 	if _, _, err := runSourceWithOutput(t, `打印([1, "二", 真])`, &buf); err != nil {
 		t.Fatalf("运行错误：%v", err)
 	}
-	if got := buf.String(); got != "[1, 二, 真]\n" {
-		t.Fatalf("打印输出不符：%q", got)
+	if got := buf.String(); got != "1 二 真" {
+		t.Fatalf("单数组应空格展开且不换行：%q", got)
 	}
 }
 
@@ -169,8 +169,38 @@ func TestBuiltinPrintMultipleArgs(t *testing.T) {
 	if _, _, err := runSourceWithOutput(t, `打印(1, "甲", 真)`, &buf); err != nil {
 		t.Fatalf("运行错误：%v", err)
 	}
-	if got := buf.String(); got != "1 甲 真\n" {
-		t.Fatalf("打印输出不符：%q", got)
+	if got := buf.String(); got != "1甲真" {
+		t.Fatalf("多参数应原样直拼且不换行：%q", got)
+	}
+}
+
+func TestBuiltinPrintLine(t *testing.T) {
+	var buf bytes.Buffer
+	src := strings.Join([]string{
+		`打印行("第一")`,
+		`打印行("第二")`,
+		`打印("A")`,
+		`打印("B")`,
+	}, "\n")
+	if _, _, err := runSourceWithOutput(t, src, &buf); err != nil {
+		t.Fatalf("运行错误：%v", err)
+	}
+	if got := buf.String(); got != "第一\n第二\nAB" {
+		t.Fatalf("打印行换行、打印不换行：%q", got)
+	}
+}
+
+func TestPrintMatchesRustSemantics(t *testing.T) {
+	var buf bytes.Buffer
+	src := strings.Join([]string{
+		`打印("a：", 1, "b：", 真)`,
+		`打印([1, 2, 3])`,
+	}, "\n")
+	if _, _, err := runSourceWithOutput(t, src, &buf); err != nil {
+		t.Fatalf("运行错误：%v", err)
+	}
+	if got := buf.String(); got != "a：1b：真1 2 3" {
+		t.Fatalf("与 Rust 打印语义不一致：%q", got)
 	}
 }
 

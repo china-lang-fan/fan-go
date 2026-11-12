@@ -32,10 +32,10 @@ func TestRuntimeStdoutIsolation(t *testing.T) {
 	runInRuntime(t, rtB, `打印("B")`)
 	runInRuntime(t, rtA, `打印("A2")`)
 
-	if strings.TrimSpace(a.String()) != "A\nA2" {
+	if a.String() != "AA2" {
 		t.Fatalf("实例 A 输出错误：%q", a.String())
 	}
-	if strings.TrimSpace(b.String()) != "B" {
+	if b.String() != "B" {
 		t.Fatalf("实例 B 输出错误：%q", b.String())
 	}
 }
