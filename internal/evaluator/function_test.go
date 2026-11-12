@@ -7,7 +7,7 @@ import (
 
 func TestFunctionAdd(t *testing.T) {
 	src := strings.Join([]string{
-		`函数 求和（甲，乙）`,
+		`函数 求和(任意 甲，任意 乙)`,
 		`    返回 甲 加 乙`,
 		`结束`,
 		`求和(2, 3)`,
@@ -17,7 +17,7 @@ func TestFunctionAdd(t *testing.T) {
 
 func TestFunctionImplicitCall(t *testing.T) {
 	src := strings.Join([]string{
-		`函数 问候（名字）`,
+		`函数 问候(任意 名字)`,
 		`    打印("你好")`,
 		`结束`,
 		`问候 "小明"`,
@@ -29,7 +29,7 @@ func TestFunctionImplicitCall(t *testing.T) {
 
 func TestAnonymousFunction(t *testing.T) {
 	src := strings.Join([]string{
-		`变量 平方 = 函数（数）`,
+		`变量 平方 = 函数(任意 数)`,
 		`    返回 数 乘 数`,
 		`结束`,
 		`平方(4)`,
@@ -55,7 +55,7 @@ func TestClosure(t *testing.T) {
 
 func TestRecursion(t *testing.T) {
 	src := strings.Join([]string{
-		`函数 阶乘(n)`,
+		`函数 阶乘(任意 n)`,
 		`    如果 n 小于等于 1 那么`,
 		`        返回 1`,
 		`    结束`,
@@ -93,7 +93,7 @@ func TestImplicitReturnAtEnd(t *testing.T) {
 }
 
 func TestFunctionWrongArgCount(t *testing.T) {
-	mustError(t, "函数 求和(甲,乙)\n    返回 甲 加 乙\n结束\n求和(1)", "参数数量不符")
+	mustError(t, "函数 求和(任意 甲，任意 乙)\n    返回 甲 加 乙\n结束\n求和(1)", "参数数量不符")
 }
 
 func TestCallNonFunction(t *testing.T) {
@@ -123,10 +123,10 @@ func TestReturnOnlyInFunction(t *testing.T) {
 
 func TestFunctionAsArgument(t *testing.T) {
 	src := strings.Join([]string{
-		`函数 应用(f, x)`,
+		`函数 应用(任意 f, 任意 x)`,
 		`    返回 f(x)`,
 		`结束`,
-		`函数 双倍(n)`,
+		`函数 双倍(任意 n)`,
 		`    返回 n 乘 2`,
 		`结束`,
 		`应用(双倍, 5)`,
@@ -161,7 +161,7 @@ func TestImplicitReceiverCall(t *testing.T) {
 
 func TestFunctionWithArray(t *testing.T) {
 	src := strings.Join([]string{
-		`函数 求和数组(列)`,
+		`函数 求和数组(任意 列)`,
 		`    变量 合计 = 0`,
 		`    变量 i = 0`,
 		`    当 i 小于 长度(列) 循环`,
@@ -176,7 +176,7 @@ func TestFunctionWithArray(t *testing.T) {
 }
 
 func TestTypedParameterCheck(t *testing.T) {
-	src := "函数 问候(名字 字符串)\n    打印 名字\n结束\n问候(123)"
+	src := "函数 问候(字符串 名字)\n    打印 名字\n结束\n问候(123)"
 	mustError(t, src, "参数 名字 类型不匹配")
 }
 
@@ -186,18 +186,18 @@ func TestReturnTypeCheck(t *testing.T) {
 }
 
 func TestTypedFunctionSuccess(t *testing.T) {
-	src := "函数 求和(甲 整数、乙 整数) -> 整数\n    返回 甲 加 乙\n结束\n求和(2, 3)"
+	src := "函数 求和(整数 甲，整数 乙) -> 整数\n    返回 甲 加 乙\n结束\n求和(2, 3)"
 	mustInt(t, src, 5)
 }
 
 func TestDefineFunction(t *testing.T) {
-	src := "定义 函数 双倍(数 整数) -> 整数\n    返回 数 乘 2\n结束\n双倍(4)"
+	src := "定义 函数 双倍(整数 数) -> 整数\n    返回 数 乘 2\n结束\n双倍(4)"
 	mustInt(t, src, 8)
 }
 
 func TestMultiReturnAndDecl(t *testing.T) {
 	src := strings.Join([]string{
-		`函数 商余(a 整数，b 整数) -> (整数，整数)`,
+		`函数 商余(整数 a，整数 b) -> (整数，整数)`,
 		`    返回 a / b、a % b`,
 		`结束`,
 		`变量 商、余数 = 商余(10, 3)`,
@@ -208,7 +208,7 @@ func TestMultiReturnAndDecl(t *testing.T) {
 
 func TestMultiReturnSecondValue(t *testing.T) {
 	src := strings.Join([]string{
-		`函数 商余(a 整数，b 整数) -> (整数，整数)`,
+		`函数 商余(整数 a，整数 b) -> (整数，整数)`,
 		`    返回 a / b、a % b`,
 		`结束`,
 		`变量 商、余数 = 商余(10, 3)`,
@@ -222,7 +222,7 @@ func TestMultiReturnSpread(t *testing.T) {
 		`函数 坐标() -> (整数，整数)`,
 		`    返回 1、2`,
 		`结束`,
-		`函数 相加(a 整数，b 整数) -> 整数`,
+		`函数 相加(整数 a，整数 b) -> 整数`,
 		`    返回 a 加 b`,
 		`结束`,
 		`相加(坐标())`,
@@ -301,7 +301,7 @@ func TestErrorConstructor(t *testing.T) {
 
 func TestErrorReturnAndCheck(t *testing.T) {
 	src := strings.Join([]string{
-		`函数 除法(a 整数，b 整数) -> (整数，错误)`,
+		`函数 除法(整数 a，整数 b) -> (整数，错误)`,
 		`    如果 b 等于 0 那么`,
 		`        返回 0、错误("零")`,
 		`    结束`,
@@ -393,7 +393,7 @@ func TestIncrementDecrement(t *testing.T) {
 
 func TestVariadicParameters(t *testing.T) {
 	src := strings.Join([]string{
-		`函数 求和(开头 整数，其余 ...整数)`,
+		`函数 求和(整数 开头，整数... 其余)`,
 		`    变量 合计 = 开头`,
 		`    遍历 其余 中的 数`,
 		`        合计 加等于 数`,
@@ -407,7 +407,7 @@ func TestVariadicParameters(t *testing.T) {
 
 func TestVariadicNoExtra(t *testing.T) {
 	src := strings.Join([]string{
-		`函数 f(x 整数，其余 ...整数)`,
+		`函数 f(整数 x，整数... 其余)`,
 		`    返回 长度(其余)`,
 		`结束`,
 		`f(1)`,
@@ -416,26 +416,26 @@ func TestVariadicNoExtra(t *testing.T) {
 }
 
 func TestVariadicTypeCheck(t *testing.T) {
-	src := "函数 f(其余 ...整数)\n结束\nf(1, 真)"
+	src := "函数 f(整数... 其余)\n结束\nf(1, 真)"
 	mustError(t, src, "参数 其余 类型不匹配")
 }
 
 func TestDefaultParameters(t *testing.T) {
 	src := strings.Join([]string{
-		`函数 问候(名字 字符串, 称呼 字符串 = "你好")`,
+		`函数 问候(字符串 名字， 字符串 称呼 = "你好")`,
 		`    返回 称呼 加 "，" 加 名字`,
 		`结束`,
 		`问候("小明")`,
 	}, "\n")
 	mustInspect(t, src, "你好，小明")
-	mustInspect(t, "函数 f(a 整数 = 2, b 整数 = 3)\n返回 a 加 b\n结束\nf(10)", "13")
-	mustInspect(t, "函数 f(a 整数 = 2, b 整数 = 3)\n返回 a 加 b\n结束\nf()", "5")
+	mustInspect(t, "函数 f(整数 a = 2， 整数 b = 3)\n返回 a 加 b\n结束\nf(10)", "13")
+	mustInspect(t, "函数 f(整数 a = 2， 整数 b = 3)\n返回 a 加 b\n结束\nf()", "5")
 }
 
 func TestDefaultParameterEvaluatedEachCall(t *testing.T) {
 	src := strings.Join([]string{
 		`变量 基数 = 1`,
-		`函数 f(x = 基数)`,
+		`函数 f(整数 x = 基数)`,
 		`    返回 x`,
 		`结束`,
 		`基数 = 9`,

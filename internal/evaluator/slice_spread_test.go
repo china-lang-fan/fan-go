@@ -74,7 +74,7 @@ func TestArraySpreadNonArrayFails(t *testing.T) {
 
 func TestSpreadCallArgs(t *testing.T) {
 	res, err := runSource(t, `
-函数 求和(数 ...整数) -> 整数
+函数 求和(整数... 数) -> 整数
     变量 总 = 0
     遍历 数 中的 n
         总 = 总 加 n
@@ -92,7 +92,7 @@ func TestSpreadCallArgs(t *testing.T) {
 
 func TestSpreadNonVariadicCall(t *testing.T) {
 	res, err := runSource(t, `
-函数 三(a, b, c)
+函数 三(任意 a, 任意 b, 任意 c)
     返回 [a, b, c]
 结束
 三(...[4, 5, 6])`)

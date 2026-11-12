@@ -194,7 +194,7 @@ func writeTempModule(t *testing.T, name, src string) string {
 
 func TestCrossModuleMixfixFunction(t *testing.T) {
 	dir := writeTempModule(t, "数学工具", `
-公开 函数 求(数列 数组)的最大值() -> 整数
+公开 函数 求(数组 数列)的最大值() -> 整数
     变量 结果 = 数列[0]
     遍历 数列 中的 值
         如果 值 > 结果 那么 结果 = 值 结束
@@ -214,7 +214,7 @@ func TestCrossModuleMixfixFunction(t *testing.T) {
 
 func TestCrossModuleMixfixMustBePublic(t *testing.T) {
 	dir := writeTempModule(t, "数学工具", `
-函数 求(数列 数组)的最大值() -> 整数
+函数 求(数组 数列)的最大值() -> 整数
     返回 数列[0]
 结束
 `)
@@ -226,7 +226,7 @@ func TestCrossModuleMixfixMustBePublic(t *testing.T) {
 
 func TestThroughModuleNormalFunction(t *testing.T) {
 	dir := writeTempModule(t, "数学工具", `
-公开 函数 最大值(数列 数组) -> 整数
+公开 函数 最大值(数组 数列) -> 整数
     变量 结果 = 数列[0]
     遍历 数列 中的 值
         如果 值 > 结果 那么 结果 = 值 结束
@@ -246,7 +246,7 @@ func TestThroughModuleNormalFunction(t *testing.T) {
 
 func TestThroughModuleMixfixFunction(t *testing.T) {
 	dir := writeTempModule(t, "数学工具", `
-公开 函数 求(数列 数组)的最大值() -> 整数
+公开 函数 求(数组 数列)的最大值() -> 整数
     返回 数列[0]
 结束
 `)

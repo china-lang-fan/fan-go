@@ -98,7 +98,7 @@ func readFrames(t *testing.T, data string) []jsonrpcMessage {
 }
 
 func TestLSPInitializeAndDiagnostics(t *testing.T) {
-	source := "函数 修改(值 字符串)的状态为无效\n    返回 值\n结束\n\n修改(\"x\") 的状态为无效\n"
+	source := "函数 修改(字符串 值)的状态为无效\n    返回 值\n结束\n\n修改(\"x\") 的状态为无效\n"
 	var input bytes.Buffer
 	input.WriteString(frame("initialize", 1, map[string]any{
 		"processId":    1,
@@ -167,7 +167,7 @@ func TestLSPInitializeAndDiagnostics(t *testing.T) {
 }
 
 func TestLSPCapabilitiesAndHover(t *testing.T) {
-	source := "# 打招呼函数\n函数 打招呼(名字 字符串) -> 字符串\n    返回 名字\n结束\n\n变量 x = 打招呼(\"张三\")\n"
+	source := "# 打招呼函数\n函数 打招呼(字符串 名字) -> 字符串\n    返回 名字\n结束\n\n变量 x = 打招呼(\"张三\")\n"
 	var input bytes.Buffer
 	input.WriteString(frame("initialize", 1, map[string]any{"capabilities": map[string]any{}}))
 	input.WriteString(frame("initialized", nil, map[string]any{}))

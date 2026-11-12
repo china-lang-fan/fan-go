@@ -2075,22 +2075,35 @@ func (p *Parser) parseParamList() ([]ast.Parameter, bool) {
 			p.next()
 			return params, true
 		}
-		if p.cur.Type != token.IDENT && p.cur.Type != token.SELF {
-			p.addError(p.cur, "参数名应为标识符")
+		// 新语序：类型在前、名字在后，且类型必须显式声明。
+		if !isTypePositionToken(p.cur.Type) {
+			if p.cur.Type == token.IDENT {
+				p.addError(p.cur, "参数须写作「类型 名字」（类型在前、名字在后），且必须显式声明类型")
+			} else {
+				p.addError(p.cur, "参数应以类型名开头（类型在前、名字在后）")
+			}
 			p.parenDepth--
 			return nil, false
 		}
-		name := p.cur.Literal
-		p.next()
+		dt := p.parseTypeUnion()
+		if strings.Contains(string(dt), "|") {
+			p.addError(p.cur, "参数不允许匿名联合类型，请先用「定义 类型」为联合起别名")
+			p.parenDepth--
+			return nil, false
+		}
+		// 可变参数：类型后紧跟 ...，再写名字，如 `整数... 数字们`。
 		variadic := false
 		if p.cur.Type == token.ELLIPSIS {
 			variadic = true
 			p.next()
 		}
-		dt := ast.TypeAny
-		if isTypePositionToken(p.cur.Type) {
-			dt = p.parseTypeUnion()
+		if p.cur.Type != token.IDENT && p.cur.Type != token.SELF {
+			p.addError(p.cur, "类型后应为参数名（标识符）")
+			p.parenDepth--
+			return nil, false
 		}
+		name := p.cur.Literal
+		p.next()
 		var def ast.Expression
 		if !variadic && p.cur.Type == token.ASSIGN {
 			sawDefault = true
@@ -2525,6 +2538,11 @@ func (p *Parser) parseSingleTypeName() ast.DeclType {
 		p.next()
 		return ast.DeclType("空")
 	case p.cur.Type == token.CLASS || p.cur.Type == token.IDENT:
+		// `任意` 是显式的动态类型占位（与 fan-rust 一致），解析为未标注类型。
+		if p.cur.Literal == "任意" {
+			p.next()
+			return ast.TypeAny
+		}
 		name := ast.DeclType(p.cur.Literal)
 		p.next()
 		return name

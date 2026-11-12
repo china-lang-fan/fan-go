@@ -60,7 +60,7 @@ func TestPrimitiveMethodOverride(t *testing.T) {
 }
 
 func TestPrimitiveMethodWithArgs(t *testing.T) {
-	src := `定义 字符串 的 方法 包围(左 字符串, 右 字符串) -> 字符串
+	src := `定义 字符串 的 方法 包围(字符串 左， 字符串 右) -> 字符串
     返回 左 + 自己 + 右
 结束
 
@@ -120,10 +120,10 @@ func TestPrimitiveMethodNoArgumentAutoCall(t *testing.T) {
 }
 
 func TestPrimitiveMethodFunctionEquivalence(t *testing.T) {
-	src := `定义 函数 包围文本(自己 字符串, 记号 字符串) -> 字符串
+	src := `定义 函数 包围文本(字符串 自己， 字符串 记号) -> 字符串
     返回 记号 + 自己 + 记号
 结束
-定义 字符串 的 方法 包围文本(记号 字符串) -> 字符串
+定义 字符串 的 方法 包围文本(字符串 记号) -> 字符串
     返回 记号 + 自己 + 记号
 结束
 

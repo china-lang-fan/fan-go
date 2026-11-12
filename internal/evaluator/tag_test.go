@@ -7,7 +7,7 @@ import (
 
 func TestBuiltinTagReplacesImplementation(t *testing.T) {
 	src := `@内建("测试.加一")
-定义 函数 加一(n 整数) -> 整数
+定义 函数 加一(整数 n) -> 整数
     返回 空
 结束
 加一(41)`
@@ -23,7 +23,7 @@ func TestBuiltinTagReplacesImplementation(t *testing.T) {
 func TestBuiltinTagPrintArray(t *testing.T) {
 	var buf bytes.Buffer
 	src := `@内建("打印")
-定义 函数 输出(内容...)
+定义 函数 输出(任意... 内容)
     返回 空
 结束
 输出([1, 2, 3])`
@@ -75,7 +75,7 @@ func TestUnknownBuiltinFunction(t *testing.T) {
 func TestBuiltinTagPrint(t *testing.T) {
 	var buf bytes.Buffer
 	src := `@内建("打印")
-定义 函数 输出(内容...)
+定义 函数 输出(任意... 内容)
     返回 空
 结束
 输出("你好，", "凡")`
@@ -94,7 +94,7 @@ func TestFanTagHandler(t *testing.T) {
 函数 新实现()
     返回 "来自凡语言"
 结束
-函数 自定义处理(上下文)
+函数 自定义处理(任意 上下文)
     上下文.替换实现(新实现)
 结束
 注册标签处理("自定义", 自定义处理)
@@ -117,7 +117,7 @@ func TestTagInstanceFields(t *testing.T) {
     变量 值
     变量 请求方法
 结束
-函数 处理路由(上下文)
+函数 处理路由(任意 上下文)
     变量 结果 = 函数()
         返回 上下文.标签.请求方法 + ":" + 上下文.标签.值
     结束
@@ -142,7 +142,7 @@ func TestFanTagHandlerReadsTag(t *testing.T) {
 	src := `模型 自定义
     变量 值
 结束
-函数 自定义处理(上下文)
+函数 自定义处理(任意 上下文)
     变量 结果 = 函数()
         返回 上下文.标签.值
     结束
@@ -183,7 +183,7 @@ func TestMethodTagReplacesImplementation(t *testing.T) {
 	src := `模型 用户
 结束
 @内建("测试.加一")
-定义 用户 的 方法 编号(基数 整数) -> 整数
+定义 用户 的 方法 编号(整数 基数) -> 整数
     返回 空
 结束
 用户().编号(41)`
@@ -203,18 +203,18 @@ func TestFanMethodHandlerReceivesInstance(t *testing.T) {
 模型 用户
     变量 名称
 结束
-函数 新实现(实例, 基数 整数)
+函数 新实现(任意 实例， 整数 基数)
     如果 实例.名称 == "小明" 那么
         返回 基数
     结束
     返回 0
 结束
-函数 处理自定义(上下文)
+函数 处理自定义(任意 上下文)
     上下文.替换实现(新实现)
 结束
 注册标签处理("自定义", 处理自定义)
 @自定义
-定义 用户 的 方法 编号(基数 整数)
+定义 用户 的 方法 编号(整数 基数)
     返回 空
 结束
 变量 用户实例 = 用户()
@@ -234,7 +234,7 @@ func TestFanTagHandlerReadsCurrentCallable(t *testing.T) {
 	src := `模型 自定义
     变量 值
 结束
-函数 自定义处理(上下文)
+函数 自定义处理(任意 上下文)
     变量 原实现 = 上下文.当前实现
     打印(原实现)
 结束
@@ -259,15 +259,15 @@ func TestSecondTagReceivesReplacedCallable(t *testing.T) {
 模型 第二标记
     变量 值
 结束
-函数 第一处理(上下文)
-    变量 新实现 = 函数(基数 整数)
+函数 第一处理(任意 上下文)
+    变量 新实现 = 函数(整数 基数)
         返回 基数 + 10
     结束
     上下文.替换实现(新实现)
 结束
-函数 第二处理(上下文)
+函数 第二处理(任意 上下文)
     变量 原实现 = 上下文.当前实现
-    变量 新实现 = 函数(基数 整数)
+    变量 新实现 = 函数(整数 基数)
         返回 原实现(基数) + 1
     结束
     上下文.替换实现(新实现)
@@ -276,7 +276,7 @@ func TestSecondTagReceivesReplacedCallable(t *testing.T) {
 注册标签处理("第二标记", 第二处理)
 @第一标记
 @第二标记
-定义 函数 测试(基数 整数) -> 整数
+定义 函数 测试(整数 基数) -> 整数
     返回 基数
 结束
 测试(31)`

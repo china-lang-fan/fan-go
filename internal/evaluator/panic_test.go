@@ -14,7 +14,7 @@ func TestDeferLIFO(t *testing.T) {
 		`    稍后 追加记录("第一")`,
 		`结束`,
 		`变量 记录 = []`,
-		`函数 追加记录(文本 字符串)`,
+		`函数 追加记录(字符串 文本)`,
 		`    记录 = 追加(记录, 文本)`,
 		`结束`,
 		`f()`,
@@ -80,7 +80,7 @@ func TestThrowAnyInstance(t *testing.T) {
 func TestDeferImmediateArguments(t *testing.T) {
 	src := strings.Join([]string{
 		`变量 结果 = ""`,
-		`函数 记录(文本 字符串)`,
+		`函数 记录(字符串 文本)`,
 		`    结果 = 文本`,
 		`结束`,
 		`函数 f()`,

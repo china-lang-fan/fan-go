@@ -78,7 +78,7 @@ func TestExternalMethodDef(t *testing.T) {
 }
 
 func TestExternalMethodWithParams(t *testing.T) {
-	src := "定义 矩形 的 方法 放大（倍数 整数）\n    自己.宽 = 自己.宽 乘 倍数\n结束"
+	src := "定义 矩形 的 方法 放大（整数 倍数）\n    自己.宽 = 自己.宽 乘 倍数\n结束"
 	prog := mustParse(t, src)
 	method := prog.Statements[0].(*ast.MethodDef)
 	if len(method.Function.Params) != 1 {

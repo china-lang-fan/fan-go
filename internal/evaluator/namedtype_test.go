@@ -126,7 +126,7 @@ ok
 
 func TestNamedTypeMethod(t *testing.T) {
 	src := namedTypeSrc + `
-定义 状态 的 方法 文本(自己) -> 字符串
+定义 状态 的 方法 文本(任意 自己) -> 字符串
     判断 自己
         为 无效
             返回 "无效"

@@ -9,7 +9,7 @@ import (
 
 func TestFunctionDefinitionWithParens(t *testing.T) {
 	src := strings.Join([]string{
-		`函数 求和（甲，乙）`,
+		`函数 求和（任意 甲，任意 乙）`,
 		`    返回 甲 加 乙`,
 		`结束`,
 	}, "\n")
@@ -29,7 +29,7 @@ func TestFunctionDefinitionWithParens(t *testing.T) {
 
 func TestAnonymousFunction(t *testing.T) {
 	src := strings.Join([]string{
-		`变量 平方 = 函数（数）`,
+		`变量 平方 = 函数（任意 数）`,
 		`    返回 数 乘 数`,
 		`结束`,
 	}, "\n")
@@ -192,7 +192,7 @@ func TestNoImplicitInCondition(t *testing.T) {
 
 func TestDefineFunctionOptional(t *testing.T) {
 	src := strings.Join([]string{
-		`定义 函数 求和(甲, 乙)`,
+		`定义 函数 求和(任意 甲, 任意 乙)`,
 		`    返回 甲 加 乙`,
 		`结束`,
 	}, "\n")
@@ -205,7 +205,7 @@ func TestDefineFunctionOptional(t *testing.T) {
 }
 
 func TestTypedParameters(t *testing.T) {
-	src := `定义 函数 求和(甲 整数，乙 整数) -> 整数
+	src := `定义 函数 求和(整数 甲，整数 乙) -> 整数
     返回 甲 加 乙
 结束`
 	prog := mustParse(t, src)
@@ -225,7 +225,7 @@ func TestTypedParameters(t *testing.T) {
 }
 
 func TestDefaultAndVariadicParameters(t *testing.T) {
-	src := `函数 f(a 整数, b 整数 = 2, 其余 ...整数)
+	src := `函数 f(整数 a, 整数 b = 2, 整数... 其余)
 结束`
 	prog := mustParse(t, src)
 	fn := prog.Statements[0].(*ast.VarDecl).Value.(*ast.FunctionLiteral)
@@ -241,12 +241,16 @@ func TestDefaultAndVariadicParameters(t *testing.T) {
 }
 
 func TestInvalidParameterOrder(t *testing.T) {
-	expectError(t, "函数 f(a ...整数, b)\n结束")
-	expectError(t, "函数 f(a = 1, b)\n结束")
+	expectError(t, "函数 f(整数... 其余, 整数 b)\n结束")
+	expectError(t, "函数 f(整数 a = 1, 整数 b)\n结束")
+	// 旧语序（名字在前、类型在后）直接报错
+	expectError(t, "函数 f(a 整数)\n结束")
+	// 无类型参数报错：必须显式声明类型
+	expectError(t, "函数 f(乙)\n结束")
 }
 
 func TestTypedParamsMultiReturn(t *testing.T) {
-	src := "函数 商余(a 整数，b 整数) -> (整数，整数)\n    返回 a / b，a % b\n结束"
+	src := "函数 商余(整数 a，整数 b) -> (整数，整数)\n    返回 a / b，a % b\n结束"
 	prog := mustParse(t, src)
 	fn := prog.Statements[0].(*ast.VarDecl).Value.(*ast.FunctionLiteral)
 	if len(fn.ReturnTypes) != 2 ||
@@ -393,5 +397,65 @@ func TestExportClass(t *testing.T) {
 	exp := prog.Statements[0].(*ast.VisibilityStmt)
 	if exp.Name != "点" {
 		t.Fatalf("导出模型名错误：%s", exp.Name)
+	}
+}
+
+// 新语序：类型在前、名字在后，且必须显式声明类型。
+func TestTypeFirstParameterOrder(t *testing.T) {
+	cases := []struct {
+		src  string
+		name string
+		typ  ast.DeclType
+	}{
+		{"函数 f(整数 n)\n结束", "n", ast.TypeInt},
+		{"函数 f(字符串 名)\n结束", "名", ast.TypeString},
+		{"函数 f(任意 x)\n结束", "x", ast.TypeAny},
+	}
+	for _, c := range cases {
+		prog := mustParse(t, c.src)
+		fn := prog.Statements[0].(*ast.VarDecl).Value.(*ast.FunctionLiteral)
+		if len(fn.Params) != 1 {
+			t.Fatalf("%s：应有 1 个参数，实际 %d", c.src, len(fn.Params))
+		}
+		if fn.Params[0].Name != c.name || fn.Params[0].Type != c.typ {
+			t.Fatalf("%s：参数解析错误 %+v", c.src, fn.Params[0])
+		}
+	}
+}
+
+func TestTypeFirstVariadic(t *testing.T) {
+	src := "函数 f(整数... 数字们)\n结束"
+	prog := mustParse(t, src)
+	fn := prog.Statements[0].(*ast.VarDecl).Value.(*ast.FunctionLiteral)
+	p := fn.Params[0]
+	if !p.Variadic || p.Name != "数字们" || p.Type != ast.TypeInt {
+		t.Fatalf("可变参数解析错误：%+v", p)
+	}
+}
+
+// 任意 是显式动态类型占位，解析为未标注类型（TypeAny），不参与类型检查。
+func TestAnyKeywordResolvesToTypeAny(t *testing.T) {
+	src := "函数 f(任意 x)\n结束"
+	prog := mustParse(t, src)
+	fn := prog.Statements[0].(*ast.VarDecl).Value.(*ast.FunctionLiteral)
+	if fn.Params[0].Type != ast.TypeAny {
+		t.Fatalf("任意 应解析为 TypeAny，实际 %q", fn.Params[0].Type)
+	}
+}
+
+// 参数位置不允许匿名联合，必须先用 定义 类型 起别名。
+func TestAnonymousUnionParamRejected(t *testing.T) {
+	expectError(t, "函数 f(整数 或 字符串 x)\n结束")
+}
+
+// 方法参数同样使用新语序。
+func TestMethodTypeFirstParams(t *testing.T) {
+	src := "定义 矩形 的 方法 放大(整数 倍数)\n结束"
+	prog := mustParse(t, src)
+	method := prog.Statements[0].(*ast.MethodDef)
+	if len(method.Function.Params) != 1 ||
+		method.Function.Params[0].Name != "倍数" ||
+		method.Function.Params[0].Type != ast.TypeInt {
+		t.Fatalf("方法参数解析错误：%+v", method.Function.Params)
 	}
 }

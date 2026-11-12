@@ -47,7 +47,7 @@ func TestCompositeLiteralDoesNotCallInit(t *testing.T) {
 定义 模型 矩形
     公开 变量 整数 宽
 结束
-定义 矩形 的 方法 初始化(宽 整数)
+定义 矩形 的 方法 初始化(整数 宽)
     自己.宽 = 宽 乘 100
 结束
 矩形{宽: 3}.宽`)

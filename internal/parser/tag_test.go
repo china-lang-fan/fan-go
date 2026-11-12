@@ -8,7 +8,7 @@ import (
 
 func TestParseFunctionTag(t *testing.T) {
 	src := `@内建("测试.加一")
-定义 函数 加一(n 整数) -> 整数
+定义 函数 加一(整数 n) -> 整数
     返回 空
 结束`
 	prog, errs := ParseProgram(src)
@@ -91,7 +91,7 @@ func TestParseBareIdentifierArgumentStaysFunction(t *testing.T) {
 
 func TestParseTaggedExport(t *testing.T) {
 	src := `@内建("type")
-公开 函数 type(值) -> 字符串
+公开 函数 type(任意 值) -> 字符串
 结束`
 	prog, errs := ParseProgram(src)
 	if len(errs) > 0 {

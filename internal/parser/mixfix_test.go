@@ -7,7 +7,7 @@ import (
 )
 
 func TestMixfixFunctionDefinition(t *testing.T) {
-	src := "函数 修改用户(当前用户 用户)的状态为(新状态 状态) -> 字符串\n    返回 当前用户.名 + 新状态.值\n结束"
+	src := "函数 修改用户(用户 当前用户)的状态为(状态 新状态) -> 字符串\n    返回 当前用户.名 + 新状态.值\n结束"
 	prog := mustParse(t, src)
 	decl := prog.Statements[0].(*ast.VarDecl)
 	if decl.Name != "修改用户的状态为" {
@@ -26,16 +26,17 @@ func TestMixfixFunctionDefinition(t *testing.T) {
 }
 
 func TestMixfixFunctionRequiresExplicitTypes(t *testing.T) {
-	expectError(t, "函数 标记(值)的状态(新值 字符串)\n结束")
-	expectError(t, "函数 标记(值 字符串 = \"x\")的状态(新值 字符串)\n结束")
-	expectError(t, "函数 标记(值 ...字符串)的状态(新值 字符串)\n结束")
-	expectError(t, "函数 标记()的状态(新值 字符串)\n结束")
+	// 无类型参数报错：分段函数参数必须显式声明类型
+	expectError(t, "函数 标记(值)的状态(字符串 新值)\n结束")
+	expectError(t, "函数 标记(字符串 值 = \"x\")的状态(字符串 新值)\n结束")
+	expectError(t, "函数 标记(字符串... 值)的状态(字符串 新值)\n结束")
+	expectError(t, "函数 标记()的状态(字符串 新值)\n结束")
 }
 
 func TestMixfixFunctionEmptyLastSegment(t *testing.T) {
 	for _, src := range []string{
-		"函数 标记(值 字符串)的状态()\n    返回 值\n结束",
-		"函数 标记(值 字符串)的状态\n    返回 值\n结束",
+		"函数 标记(字符串 值)的状态()\n    返回 值\n结束",
+		"函数 标记(字符串 值)的状态\n    返回 值\n结束",
 	} {
 		prog := mustParse(t, src)
 		decl := prog.Statements[0].(*ast.VarDecl)

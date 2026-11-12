@@ -14,12 +14,12 @@ const privateFieldModel = `
     私有 变量 整数 余额
 结束
 
-定义 账户 的 方法 初始化(名字 字符串, 余额 整数)
+定义 账户 的 方法 初始化(字符串 名字， 整数 余额)
     自己.名字 = 名字
     自己.余额 = 余额
 结束
 
-定义 账户 的 公开 方法 存款(数额 整数)
+定义 账户 的 公开 方法 存款(整数 数额)
     自己.余额 = 自己.余额 加 数额
 结束
 
@@ -110,7 +110,7 @@ func loadTempModule(t *testing.T, src string) *object.Module {
 
 func TestModuleExportsOnlyPublic(t *testing.T) {
 	src := `
-公开 函数 加一(x 整数) -> 整数
+公开 函数 加一(整数 x) -> 整数
     返回 x 加 1
 结束
 

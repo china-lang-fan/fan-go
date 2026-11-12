@@ -8,7 +8,7 @@ import (
 )
 
 func TestMixfixFunctionCall(t *testing.T) {
-	src := `函数 修改(值 字符串)的状态为(状态 字符串) -> 字符串
+	src := `函数 修改(字符串 值)的状态为(字符串 状态) -> 字符串
     返回 值 + ":" + 状态
 结束
 
@@ -19,10 +19,10 @@ func TestMixfixFunctionCall(t *testing.T) {
 }
 
 func TestMixfixFunctionOverloadByRuntimeType(t *testing.T) {
-	src := `函数 修改(值 字符串)的状态为(状态 字符串) -> 字符串
+	src := `函数 修改(字符串 值)的状态为(字符串 状态) -> 字符串
     返回 "字符串"
 结束
-函数 修改(值 整数)的状态为(状态 字符串) -> 字符串
+函数 修改(整数 值)的状态为(字符串 状态) -> 字符串
     返回 "整数"
 结束
 
@@ -33,7 +33,7 @@ func TestMixfixFunctionOverloadByRuntimeType(t *testing.T) {
 }
 
 func TestMixfixThreeSegmentFunction(t *testing.T) {
-	src := `函数 从(起点 字符串)到(终点 字符串)乘坐(工具 字符串) -> 字符串
+	src := `函数 从(字符串 起点)到(字符串 终点)乘坐(字符串 工具) -> 字符串
     返回 起点 + "->" + 终点 + ":" + 工具
 结束
 
@@ -44,7 +44,7 @@ func TestMixfixThreeSegmentFunction(t *testing.T) {
 }
 
 func TestMixfixNoMatchingSignature(t *testing.T) {
-	src := `函数 修改(值 字符串)的状态为(状态 字符串) -> 字符串
+	src := `函数 修改(字符串 值)的状态为(字符串 状态) -> 字符串
     返回 值
 结束
 
@@ -60,7 +60,7 @@ func TestMixfixNoMatchingSignature(t *testing.T) {
 }
 
 func TestMixfixEmptyLastSegment(t *testing.T) {
-	src := `函数 修改(值 字符串)的状态为无效() -> 字符串
+	src := `函数 修改(字符串 值)的状态为无效() -> 字符串
     返回 值 + ":无效"
 结束
 
@@ -69,7 +69,7 @@ func TestMixfixEmptyLastSegment(t *testing.T) {
 		t.Fatalf("带括号末段错误：%s", got)
 	}
 
-	src2 := `函数 修改(值 字符串)的状态为无效 -> 字符串
+	src2 := `函数 修改(字符串 值)的状态为无效 -> 字符串
     返回 值 + ":无效"
 结束
 
@@ -84,13 +84,13 @@ func TestMixfixSpacedChainPrefersNormalFunction(t *testing.T) {
     变量 字符串 标签
 结束
 
-函数 修改(值 字符串)
+函数 修改(字符串 值)
     变量 r = 结果()
     r.标签 = 值 + ":标签"
     返回 r
 结束
 
-函数 标记(值 字符串)的状态为无效 -> 字符串
+函数 标记(字符串 值)的状态为无效 -> 字符串
     返回 "不应走到分段"
 结束
 

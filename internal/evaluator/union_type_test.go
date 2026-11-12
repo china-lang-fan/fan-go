@@ -45,7 +45,8 @@ func TestUnionTypeMismatch(t *testing.T) {
 
 func TestUnionTypeParamsAndReturns(t *testing.T) {
 	src := `
-函数 f(x 整数 或 字符串) -> 整数 或 字符串
+定义 类型 标识 为 整数 或 字符串
+函数 f(标识 x) -> 整数 或 字符串
 	返回 x
 结束
 f(1)
@@ -59,7 +60,8 @@ f(1)
 	}
 
 	bad := `
-函数 f(x 整数 或 字符串) -> 整数 或 字符串
+定义 类型 标识 为 整数 或 字符串
+函数 f(标识 x) -> 整数 或 字符串
 	返回 x
 结束
 f(真)
@@ -257,7 +259,7 @@ s 是 字符串
 func TestNamedUnionTypeAliasMethod(t *testing.T) {
 	src := `
 类型 编号 整数 或 字符串
-定义 编号 的 方法 文本(自己) -> 字符串
+定义 编号 的 方法 文本(任意 自己) -> 字符串
 	如果 自己 是 整数 那么
 		返回 "整数编号"
 	结束

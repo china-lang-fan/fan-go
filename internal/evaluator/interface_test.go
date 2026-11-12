@@ -14,7 +14,7 @@ const ifaceDogSrc = `
 定义 模型 狗
     变量 字符串 名
 结束
-定义 狗 的 方法 初始化(名 字符串)
+定义 狗 的 方法 初始化(字符串 名)
     自己.名 = 名
 结束
 定义 狗 的 方法 说话() -> 字符串
@@ -38,7 +38,7 @@ func TestInterfaceSatisfiedByModel(t *testing.T) {
 
 func TestInterfaceMethodParamTypeCheck(t *testing.T) {
 	src := ifaceDogSrc + `
-函数 介绍(谁 说话者)
+函数 介绍(说话者 谁)
     返回 谁.说话()
 结束
 介绍(狗("旺财"))
@@ -54,7 +54,7 @@ func TestInterfaceMethodParamTypeCheck(t *testing.T) {
 
 func TestInterfaceMissingMethod(t *testing.T) {
 	src := ifaceDogSrc + `
-函数 介绍(谁 说话者)
+函数 介绍(说话者 谁)
 结束
 定义 模型 石头
 结束
@@ -66,14 +66,14 @@ func TestInterfaceMissingMethod(t *testing.T) {
 func TestInterfaceArityMismatch(t *testing.T) {
 	src := `
 接口 读取者
-    方法 读取(长度 整数) -> 字符串
+    方法 读取(整数 长度) -> 字符串
 结束
 定义 模型 假的
 结束
 定义 假的 的 方法 读取() -> 字符串
     返回 ""
 结束
-函数 用(谁 读取者)
+函数 用(读取者 谁)
 结束
 用(假的())
 `
@@ -93,10 +93,10 @@ func TestInterfaceReturnCheck(t *testing.T) {
 func TestInterfaceEmbedding(t *testing.T) {
 	src := `
 接口 读者
-    方法 读取(长度 整数) -> 字符串
+    方法 读取(整数 长度) -> 字符串
 结束
 接口 写者
-    方法 写入(内容 字符串)
+    方法 写入(字符串 内容)
 结束
 接口 读写者
     嵌入 读者
@@ -106,18 +106,18 @@ func TestInterfaceEmbedding(t *testing.T) {
 定义 模型 内存流
     变量 字符串 缓冲
 结束
-定义 内存流 的 方法 初始化(初始 字符串)
+定义 内存流 的 方法 初始化(字符串 初始)
     自己.缓冲 = 初始
 结束
-定义 内存流 的 方法 读取(长度 整数) -> 字符串
+定义 内存流 的 方法 读取(整数 长度) -> 字符串
     返回 自己.缓冲
 结束
-定义 内存流 的 方法 写入(内容 字符串)
+定义 内存流 的 方法 写入(字符串 内容)
     自己.缓冲 = 自己.缓冲 + 内容
 结束
 定义 内存流 的 方法 关闭()
 结束
-函数 用流(流 读写者)
+函数 用流(读写者 流)
     流.写入("abc")
     返回 流.读取(3)
 结束
@@ -166,7 +166,7 @@ func TestInterfacePrimitiveMethodSet(t *testing.T) {
 定义 字符串 的 方法 问候() -> 字符串
     返回 "你好，" + 自己
 结束
-函数 打招呼(谁 可问候)
+函数 打招呼(可问候 谁)
     返回 谁.问候()
 结束
 打招呼("凡")
@@ -183,13 +183,13 @@ func TestInterfacePrimitiveMethodSet(t *testing.T) {
 func TestInterfaceParamTypeMismatch(t *testing.T) {
 	src := `
 接口 通知者
-    方法 通知(消息 字符串)
+    方法 通知(字符串 消息)
 结束
 定义 模型 假通知
 结束
-定义 假通知 的 方法 通知(消息 整数)
+定义 假通知 的 方法 通知(整数 消息)
 结束
-函数 用(谁 通知者)
+函数 用(通知者 谁)
 结束
 用(假通知())
 `
@@ -206,7 +206,7 @@ func TestInterfaceReturnTypeMismatch(t *testing.T) {
 定义 无名氏 的 方法 取名() -> 整数
     返回 1
 结束
-函数 用(谁 取名者)
+函数 用(取名者 谁)
 结束
 用(无名氏())
 `
@@ -216,14 +216,14 @@ func TestInterfaceReturnTypeMismatch(t *testing.T) {
 func TestInterfaceUntypedImplStillSatisfies(t *testing.T) {
 	src := `
 接口 存储
-    方法 保存(数据 字符串) -> 布尔
+    方法 保存(字符串 数据) -> 布尔
 结束
 定义 模型 内存
 结束
-定义 内存 的 方法 保存(数据)
+定义 内存 的 方法 保存(任意 数据)
     返回 真
 结束
-函数 用(谁 存储) -> 布尔
+函数 用(存储 谁) -> 布尔
     返回 谁.保存("x")
 结束
 用(内存())
@@ -253,7 +253,7 @@ func TestInterfaceExactSignatureRequired(t *testing.T) {
 定义 狗场 的 方法 领一只() -> 狗
     返回 狗()
 结束
-函数 造(场 饲养场) -> 动物
+函数 造(饲养场 场) -> 动物
     返回 场.领一只()
 结束
 造(狗场())
@@ -264,14 +264,14 @@ func TestInterfaceExactSignatureRequired(t *testing.T) {
 func TestInterfaceVariadicImpl(t *testing.T) {
 	src := `
 接口 求和器
-    方法 求和(a 整数, b 整数) -> 整数
+    方法 求和(整数 a, 整数 b) -> 整数
 结束
 定义 模型 多求和
 结束
-定义 多求和 的 方法 求和(首个 整数, 其余 ...整数) -> 整数
+定义 多求和 的 方法 求和(整数 首个, 整数... 其余) -> 整数
     返回 首个
 结束
-函数 用(器 求和器) -> 整数
+函数 用(求和器 器) -> 整数
     返回 器.求和(1, 2)
 结束
 用(多求和())

@@ -25,7 +25,7 @@ func TestSyntaxErrorDiagnostic(t *testing.T) {
 }
 
 func TestMixfixSpaceWarning(t *testing.T) {
-	src := `函数 修改(值 字符串)的状态为无效
+	src := `函数 修改(字符串 值)的状态为无效
     返回 值
 结束
 
@@ -42,7 +42,7 @@ func TestMixfixSpaceWarning(t *testing.T) {
 }
 
 func TestMixfixTightNoWarning(t *testing.T) {
-	src := `函数 修改(值 字符串)的状态为无效
+	src := `函数 修改(字符串 值)的状态为无效
     返回 值
 结束
 
@@ -56,7 +56,7 @@ func TestMixfixTightNoWarning(t *testing.T) {
 }
 
 func TestMixfixUnresolvedWarning(t *testing.T) {
-	src := `函数 修改(值 字符串)的状态为有效
+	src := `函数 修改(字符串 值)的状态为有效
     返回 值
 结束
 
@@ -68,7 +68,7 @@ func TestMixfixUnresolvedWarning(t *testing.T) {
 }
 
 func TestMixfixThreeSegments(t *testing.T) {
-	src := `函数 从(起点 字符串)到(终点 字符串)乘坐(工具 字符串)
+	src := `函数 从(字符串 起点)到(字符串 终点)乘坐(字符串 工具)
     返回 起点
 结束
 
@@ -82,7 +82,7 @@ func TestMixfixThreeSegments(t *testing.T) {
 
 	spaced := src
 	_ = spaced
-	src2 := `函数 从(起点 字符串)到(终点 字符串)乘坐(工具 字符串)
+	src2 := `函数 从(字符串 起点)到(字符串 终点)乘坐(字符串 工具)
     返回 起点
 结束
 
@@ -98,7 +98,7 @@ func TestNoWarningForPlainMemberAccess(t *testing.T) {
     变量 字符串 标签
 结束
 
-函数 修改(值 字符串)的状态为无效
+函数 修改(字符串 值)的状态为无效
     返回 值
 结束
 
@@ -113,7 +113,7 @@ func TestNoWarningForPlainMemberAccess(t *testing.T) {
 }
 
 func TestUndefinedNameDiagnostic(t *testing.T) {
-	src := `函数 测试(x 字符串)
+	src := `函数 测试(字符串 x)
     变量 y = 不存在的名字
     返回 y
 结束
@@ -157,7 +157,7 @@ func TestImportNotFoundDiagnostic(t *testing.T) {
 func TestDocCommentExtraction(t *testing.T) {
 	src := `# 修改用户状态
 # 第二行说明
-函数 修改(值 字符串)的状态为无效
+函数 修改(字符串 值)的状态为无效
     返回 值
 结束
 
@@ -209,7 +209,7 @@ func TestInterfaceSymbols(t *testing.T) {
     返回 "汪"
 结束
 
-函数 介绍(谁 说话者)
+函数 介绍(说话者 谁)
     打印(谁.说话())
 结束
 

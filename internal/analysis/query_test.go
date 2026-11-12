@@ -8,7 +8,7 @@ import (
 )
 
 const querySource = `# 打招呼函数
-函数 打招呼(名字 字符串) -> 字符串
+函数 打招呼(字符串 名字) -> 字符串
     返回 "你好，" 加 名字
 结束
 
@@ -71,7 +71,7 @@ func TestCompletionClassMember(t *testing.T) {
 func TestCrossModuleHover(t *testing.T) {
 	dir := t.TempDir()
 	writeFile(t, dir+"/助手.凡", `# 助手问候
-公开 函数 问候(名字 字符串) -> 字符串
+公开 函数 问候(字符串 名字) -> 字符串
     返回 名字
 结束
 `)
@@ -130,7 +130,7 @@ func TestPrimitiveMethodCompletion(t *testing.T) {
 `)
 	main := `导入 "字符串" 作为 字符串模块
 
-函数 测试(文本 字符串)
+函数 测试(字符串 文本)
     返回 文本.反转()
 结束
 `
@@ -145,7 +145,7 @@ func TestPrimitiveMethodCompletion(t *testing.T) {
 }
 
 func TestMixfixMiddleSegmentHover(t *testing.T) {
-	src := `函数 修改(值 字符串)的状态为无效
+	src := `函数 修改(字符串 值)的状态为无效
     返回 值
 结束
 

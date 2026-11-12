@@ -50,7 +50,7 @@ func TestRuntimeTagHandlerIsolation(t *testing.T) {
     返回 空
 结束
 测试()`
-	register := `函数 处理(上下文)
+	register := `函数 处理(任意 上下文)
     打印("实例A处理器")
 结束
 注册标签处理("自定义", 处理)`
