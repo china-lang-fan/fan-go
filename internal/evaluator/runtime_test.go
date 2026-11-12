@@ -43,7 +43,7 @@ func TestRuntimeStdoutIsolation(t *testing.T) {
 // TestRuntimeTagHandlerIsolation 验证“注册标签处理”只影响当前实例。
 func TestRuntimeTagHandlerIsolation(t *testing.T) {
 	modelAndUse := `模型 自定义
-    变量 值
+    属性 值
 结束
 @自定义
 定义 函数 测试()

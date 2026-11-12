@@ -14,7 +14,7 @@ n 等于 1`
 
 func TestNoArgMethodWithoutParens(t *testing.T) {
 	src := `模型 A
-    变量 x
+    属性 x
 结束
 定义 A 的 方法 f()
     自己.x = 1
@@ -27,7 +27,7 @@ a.x 等于 1`
 
 func TestNoArgMethodWithoutParensInArgument(t *testing.T) {
 	src := `模型 A
-    变量 x
+    属性 x
 结束
 定义 A 的 方法 初始化(整数 x)
     自己.x = x
@@ -45,7 +45,7 @@ func TestNoArgMethodWithoutParensInArgument(t *testing.T) {
 
 func TestFieldWithoutParensStaysField(t *testing.T) {
 	src := `模型 A
-    变量 x
+    属性 x
 结束
 变量 a = A()
 a.x = 42

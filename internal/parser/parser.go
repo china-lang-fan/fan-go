@@ -2233,7 +2233,7 @@ func (p *Parser) parseClassStatement() ast.Statement {
 		case token.ILLEGAL:
 			p.addError(p.cur, "非法字符：%s", p.cur.Literal)
 			return nil
-		case token.VAR, token.PUBLIC, token.PRIVATE:
+		case token.PROPERTY, token.PUBLIC, token.PRIVATE:
 			fieldVis := ast.VisFile
 			if p.cur.Type == token.PUBLIC || p.cur.Type == token.PRIVATE {
 				if p.cur.Type == token.PUBLIC {
@@ -2242,8 +2242,8 @@ func (p *Parser) parseClassStatement() ast.Statement {
 					fieldVis = ast.VisPrivate
 				}
 				p.next()
-				if p.cur.Type != token.VAR {
-					p.addError(p.cur, "可见性修饰后应为 变量 字段声明")
+				if p.cur.Type != token.PROPERTY {
+					p.addError(p.cur, "可见性修饰后应为 属性 字段声明")
 					return nil
 				}
 			}
@@ -2274,6 +2274,9 @@ func (p *Parser) parseClassStatement() ast.Statement {
 				return nil
 			}
 			p.skipStatementEnd()
+		case token.VAR:
+			p.addError(p.cur, "模型体内字段须用 属性 声明（变量 关键字已移除，无兼容期）")
+			return nil
 		case token.EMBED:
 			p.next()
 			if p.cur.Type != token.IDENT {

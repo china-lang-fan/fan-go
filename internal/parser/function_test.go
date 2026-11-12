@@ -392,7 +392,7 @@ func TestExportFunction(t *testing.T) {
 }
 
 func TestExportClass(t *testing.T) {
-	src := "公开 模型 点\n    变量 x\n结束"
+	src := "公开 模型 点\n    属性 x\n结束"
 	prog := mustParse(t, src)
 	exp := prog.Statements[0].(*ast.VisibilityStmt)
 	if exp.Name != "点" {

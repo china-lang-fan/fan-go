@@ -53,7 +53,7 @@ func TestThrowRecover(t *testing.T) {
 func TestThrowAnyInstance(t *testing.T) {
 	src := strings.Join([]string{
 		`模型 异常`,
-		`    变量 字符串 消息`,
+		`    属性 字符串 消息`,
 		`结束`,
 		`函数 f()`,
 		`    稍后 函数()`,

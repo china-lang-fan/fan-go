@@ -13,7 +13,7 @@ const querySource = `# 打招呼函数
 结束
 
 模型 用户
-    变量 字符串 名
+    属性 字符串 名
 结束
 
 变量 当前 = 打招呼("张三")
@@ -91,7 +91,7 @@ func TestCrossModuleHover(t *testing.T) {
 
 func TestInferLocalVariableTypeForMemberCompletion(t *testing.T) {
 	src := `模型 用户
-    变量 字符串 名
+    属性 字符串 名
 结束
 
 函数 测试()

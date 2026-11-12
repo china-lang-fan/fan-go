@@ -37,7 +37,7 @@ func TestBuiltinTagPrintArray(t *testing.T) {
 
 func TestTagTooManyPositionalArgs(t *testing.T) {
 	src := `模型 标记
-    变量 值
+    属性 值
 结束
 @标记("一", "二")
 定义 函数 测试()
@@ -50,7 +50,7 @@ func TestTagTooManyPositionalArgs(t *testing.T) {
 
 func TestTagMissingValueField(t *testing.T) {
 	src := `模型 标记
-    变量 名称
+    属性 名称
 结束
 @标记("值")
 定义 函数 测试()
@@ -89,7 +89,7 @@ func TestBuiltinTagPrint(t *testing.T) {
 
 func TestFanTagHandler(t *testing.T) {
 	src := `模型 自定义
-    变量 值
+    属性 值
 结束
 函数 新实现()
     返回 "来自凡语言"
@@ -114,8 +114,8 @@ func TestFanTagHandler(t *testing.T) {
 
 func TestTagInstanceFields(t *testing.T) {
 	src := `模型 路由信息
-    变量 值
-    变量 请求方法
+    属性 值
+    属性 请求方法
 结束
 函数 处理路由(任意 上下文)
     变量 结果 = 函数()
@@ -140,7 +140,7 @@ func TestTagInstanceFields(t *testing.T) {
 
 func TestFanTagHandlerReadsTag(t *testing.T) {
 	src := `模型 自定义
-    变量 值
+    属性 值
 结束
 函数 自定义处理(任意 上下文)
     变量 结果 = 函数()
@@ -166,7 +166,7 @@ func TestFanTagHandlerReadsTag(t *testing.T) {
 func TestClassTagReplacesConstructor(t *testing.T) {
 	src := `@内建("测试.基础实例")
 模型 用户
-    变量 名称
+    属性 名称
 结束
 变量 用户实例 = 用户()
 用户实例.值`
@@ -198,10 +198,10 @@ func TestMethodTagReplacesImplementation(t *testing.T) {
 
 func TestFanMethodHandlerReceivesInstance(t *testing.T) {
 	src := `模型 自定义
-    变量 值
+    属性 值
 结束
 模型 用户
-    变量 名称
+    属性 名称
 结束
 函数 新实现(任意 实例， 整数 基数)
     如果 实例.名称 == "小明" 那么
@@ -232,7 +232,7 @@ func TestFanMethodHandlerReceivesInstance(t *testing.T) {
 func TestFanTagHandlerReadsCurrentCallable(t *testing.T) {
 	var buf bytes.Buffer
 	src := `模型 自定义
-    变量 值
+    属性 值
 结束
 函数 自定义处理(任意 上下文)
     变量 原实现 = 上下文.当前实现
@@ -254,10 +254,10 @@ func TestFanTagHandlerReadsCurrentCallable(t *testing.T) {
 
 func TestSecondTagReceivesReplacedCallable(t *testing.T) {
 	src := `模型 第一标记
-    变量 值
+    属性 值
 结束
 模型 第二标记
-    变量 值
+    属性 值
 结束
 函数 第一处理(任意 上下文)
     变量 新实现 = 函数(整数 基数)
@@ -291,7 +291,7 @@ func TestSecondTagReceivesReplacedCallable(t *testing.T) {
 
 func TestTagCreationDoesNotCallInit(t *testing.T) {
 	src := `模型 标记
-    变量 值
+    属性 值
 结束
 定义 标记 的 方法 初始化()
     错误("不应调用初始化")

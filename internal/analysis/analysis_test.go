@@ -95,7 +95,7 @@ func TestMixfixThreeSegments(t *testing.T) {
 
 func TestNoWarningForPlainMemberAccess(t *testing.T) {
 	src := `模型 结果
-    变量 字符串 标签
+    属性 字符串 标签
 结束
 
 函数 修改(字符串 值)的状态为无效
@@ -129,7 +129,7 @@ func TestUndefinedNameDiagnostic(t *testing.T) {
 
 func TestDefinedNameNoDiagnostic(t *testing.T) {
 	src := `模型 结果
-    变量 字符串 标签
+    属性 字符串 标签
 结束
 
 函数 测试()
@@ -202,7 +202,7 @@ func TestInterfaceSymbols(t *testing.T) {
 结束
 
 定义 模型 狗
-    变量 字符串 名
+    属性 字符串 名
 结束
 
 定义 狗 的 方法 说话() -> 字符串
@@ -235,7 +235,7 @@ func TestTypeTestAndCastNoUndefined(t *testing.T) {
     方法 说话() -> 字符串
 结束
 定义 模型 狗
-    变量 字符串 名
+    属性 字符串 名
 结束
 定义 狗 的 方法 说话() -> 字符串
     返回 "汪"
@@ -280,10 +280,10 @@ func TestTypeDefSymbols(t *testing.T) {
 func TestEmbedAmbiguityDiagnostic(t *testing.T) {
 	src := `
 定义 模型 左件
-    公开 变量 整数 宽度
+    公开 属性 整数 宽度
 结束
 定义 模型 右件
-    公开 变量 整数 宽度
+    公开 属性 整数 宽度
 结束
 定义 模型 合体
     嵌入 左件
@@ -309,10 +309,10 @@ func TestEmbedAmbiguityDiagnostic(t *testing.T) {
 func TestEmbedQualifiedAccessNoDiagnostic(t *testing.T) {
 	src := `
 定义 模型 左件
-    公开 变量 整数 宽度
+    公开 属性 整数 宽度
 结束
 定义 模型 右件
-    公开 变量 整数 宽度
+    公开 属性 整数 宽度
 结束
 定义 模型 合体
     嵌入 左件
@@ -333,7 +333,7 @@ func TestEmbedQualifiedAccessNoDiagnostic(t *testing.T) {
 func TestSingleEmbedNoAmbiguity(t *testing.T) {
 	src := `
 定义 模型 基础
-    公开 变量 整数 宽度
+    公开 属性 整数 宽度
 结束
 定义 模型 派生
     嵌入 基础

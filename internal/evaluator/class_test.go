@@ -7,8 +7,8 @@ import (
 
 const rectModel = `
  定义 模型 矩形
-    变量 整数 宽
-    变量 整数 高
+    属性 整数 宽
+    属性 整数 高
  结束
 
  定义 矩形 的 方法 初始化(整数 宽，整数 高)
@@ -49,8 +49,8 @@ func TestClassFieldAssignOutside(t *testing.T) {
 func TestClassNoInit(t *testing.T) {
 	src := strings.Join([]string{
 		`模型 点`,
-		`    变量 x`,
-		`    变量 y`,
+		`    属性 x`,
+		`    属性 y`,
 		`结束`,
 		`变量 p = 点()`,
 		`p.x`,
@@ -65,29 +65,29 @@ func TestClassNoInit(t *testing.T) {
 }
 
 func TestClassNoInitWithArgsError(t *testing.T) {
-	src := "模型 点\n    变量 x\n结束\n点(1)"
+	src := "模型 点\n    属性 x\n结束\n点(1)"
 	mustError(t, src, "不应传参")
 }
 
 func TestClassUnknownField(t *testing.T) {
-	src := "模型 点\n    变量 x\n结束\n变量 p = 点()\np.颜色"
+	src := "模型 点\n    属性 x\n结束\n变量 p = 点()\np.颜色"
 	mustError(t, src, "没有字段或方法")
 }
 
 func TestClassCannotAddField(t *testing.T) {
-	src := "模型 点\n    变量 x\n结束\n变量 p = 点()\np.颜色 = \"红\""
+	src := "模型 点\n    属性 x\n结束\n变量 p = 点()\np.颜色 = \"红\""
 	mustError(t, src, "没有字段")
 }
 
 func TestClassUnknownMethod(t *testing.T) {
-	src := "模型 点\n    变量 x\n结束\n变量 p = 点()\np.跑()"
+	src := "模型 点\n    属性 x\n结束\n变量 p = 点()\np.跑()"
 	mustError(t, src, "没有方法")
 }
 
 func TestClassAsValue(t *testing.T) {
 	src := strings.Join([]string{
 		`模型 点`,
-		`    变量 x`,
+		`    属性 x`,
 		`结束`,
 		`定义 点 的 方法 初始化(整数 x)`,
 		`    自己.x = x`,
@@ -102,14 +102,14 @@ func TestClassAsValue(t *testing.T) {
 func TestClassEmbed(t *testing.T) {
 	src := strings.Join([]string{
 		`模型 人`,
-		`    变量 字符串 姓名`,
+		`    属性 字符串 姓名`,
 		`结束`,
 		`定义 人 的 方法 问好（）`,
 		`    返回 自己.姓名`,
 		`结束`,
 		`模型 学生`,
 		`    嵌入 人`,
-		`    变量 整数 学号`,
+		`    属性 整数 学号`,
 		`结束`,
 		`变量 s = 学生()`,
 		`s.姓名 = "小明"`,
@@ -127,13 +127,13 @@ func TestClassEmbed(t *testing.T) {
 func TestClassDuckTyping(t *testing.T) {
 	src := strings.Join([]string{
 		`模型 狗`,
-		`    变量 x`,
+		`    属性 x`,
 		`结束`,
 		`定义 狗 的 方法 说话（）`,
 		`    返回 "汪汪"`,
 		`结束`,
 		`模型 猫`,
-		`    变量 x`,
+		`    属性 x`,
 		`结束`,
 		`定义 猫 的 方法 说话（）`,
 		`    返回 "喵喵"`,
@@ -155,7 +155,7 @@ func TestClassDuckTyping(t *testing.T) {
 func TestClassMethodReturnsInstance(t *testing.T) {
 	src := strings.Join([]string{
 		`模型 计数器`,
-		`    变量 值`,
+		`    属性 值`,
 		`结束`,
 		`定义 计数器 的 方法 初始化（）`,
 		`    自己.值 = 0`,
@@ -179,7 +179,7 @@ func TestClassEmbedUnknownType(t *testing.T) {
 func TestMethodExtensionOverride(t *testing.T) {
 	src := strings.Join([]string{
 		`模型 点`,
-		`    变量 x`,
+		`    属性 x`,
 		`结束`,
 		`定义 点 的 方法 描述（）`,
 		`    返回 "旧"`,
@@ -201,7 +201,7 @@ func TestMethodExtensionOverride(t *testing.T) {
 func TestMethodExtensionAnywhere(t *testing.T) {
 	src := strings.Join([]string{
 		`模型 点`,
-		`    变量 x`,
+		`    属性 x`,
 		`结束`,
 		`变量 p = 点()`,
 		`定义 点 的 方法 获取（）`,
@@ -221,8 +221,8 @@ func TestMethodExtensionAnywhere(t *testing.T) {
 func TestModelTypedField(t *testing.T) {
 	src := strings.Join([]string{
 		`模型 矩形`,
-		`    变量 整数 宽`,
-		`    变量 整数 高`,
+		`    属性 整数 宽`,
+		`    属性 整数 高`,
 		`结束`,
 		`定义 矩形 的 方法 初始化(整数 宽，整数 高)`,
 		`    自己.宽 = 宽`,
@@ -235,7 +235,7 @@ func TestModelTypedField(t *testing.T) {
 }
 
 func TestModelKeywordAlias(t *testing.T) {
-	src := "模型 点\n    变量 x\n结束\n点().x"
+	src := "模型 点\n    属性 x\n结束\n点().x"
 	res, err := runSource(t, src)
 	if err != nil {
 		t.Fatalf("运行错误：%v", err)

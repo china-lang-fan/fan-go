@@ -81,7 +81,7 @@ func TestMixfixEmptyLastSegment(t *testing.T) {
 
 func TestMixfixSpacedChainPrefersNormalFunction(t *testing.T) {
 	src := `模型 结果
-    变量 字符串 标签
+    属性 字符串 标签
 结束
 
 函数 修改(字符串 值)

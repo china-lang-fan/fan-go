@@ -10,8 +10,8 @@ import (
 func TestClassBasic(t *testing.T) {
 	src := strings.Join([]string{
 		`模型 矩形`,
-		`    变量 整数 宽`,
-		`    变量 整数 高`,
+		`    属性 整数 宽`,
+		`    属性 整数 高`,
 		`结束`,
 	}, "\n")
 	prog := mustParse(t, src)
@@ -31,7 +31,7 @@ func TestClassEmbed(t *testing.T) {
 	src := strings.Join([]string{
 		`模型 学生`,
 		`    嵌入 人`,
-		`    变量 整数 学号`,
+		`    属性 整数 学号`,
 		`结束`,
 	}, "\n")
 	prog := mustParse(t, src)
@@ -42,11 +42,11 @@ func TestClassEmbed(t *testing.T) {
 }
 
 func TestClassMissingName(t *testing.T) {
-	expectError(t, "模型\n    变量 x\n结束")
+	expectError(t, "模型\n    属性 x\n结束")
 }
 
 func TestClassMissingEnd(t *testing.T) {
-	expectError(t, "模型 矩形\n    变量 宽")
+	expectError(t, "模型 矩形\n    属性 宽")
 }
 
 func TestClassNoMethodsInside(t *testing.T) {
@@ -57,8 +57,8 @@ func TestClassNoMethodsInside(t *testing.T) {
 func TestExternalMethodDef(t *testing.T) {
 	src := strings.Join([]string{
 		`模型 矩形`,
-		`    变量 整数 宽`,
-		`    变量 整数 高`,
+		`    属性 整数 宽`,
+		`    属性 整数 高`,
 		`结束`,
 		`定义 矩形 的 方法 面积（r 矩形） -> 整数`,
 		`    返回 自己.宽 乘 自己.高`,
@@ -95,7 +95,7 @@ func TestFieldAssign(t *testing.T) {
 }
 
 func TestModelKeyword(t *testing.T) {
-	src := "模型 矩形\n    变量 整数 宽\n结束"
+	src := "模型 矩形\n    属性 整数 宽\n结束"
 	prog := mustParse(t, src)
 	cls := prog.Statements[0].(*ast.ClassStmt)
 	if cls.Name != "矩形" || cls.Fields[0].Type != ast.TypeInt {
@@ -104,7 +104,7 @@ func TestModelKeyword(t *testing.T) {
 }
 
 func TestDefineModelOptional(t *testing.T) {
-	src := "定义 模型 矩形\n    变量 宽\n结束"
+	src := "定义 模型 矩形\n    属性 宽\n结束"
 	prog := mustParse(t, src)
 	if _, ok := prog.Statements[0].(*ast.ClassStmt); !ok {
 		t.Fatalf("定义 模型 应解析为模型定义，实际 %T", prog.Statements[0])
@@ -112,7 +112,7 @@ func TestDefineModelOptional(t *testing.T) {
 }
 
 func TestTypedField(t *testing.T) {
-	src := "模型 矩形\n    变量 整数 宽\n    变量 整数 高\n结束"
+	src := "模型 矩形\n    属性 整数 宽\n    属性 整数 高\n结束"
 	prog := mustParse(t, src)
 	cls := prog.Statements[0].(*ast.ClassStmt)
 	if cls.Fields[0].Type != ast.TypeInt || cls.Fields[1].Type != ast.TypeInt {
@@ -121,6 +121,38 @@ func TestTypedField(t *testing.T) {
 }
 
 func TestClassKeywordAliasRemoved(t *testing.T) {
-	expectError(t, "类 矩形\n    变量 整数 宽\n结束")
-	expectError(t, "定义 类 矩形\n    变量 整数 宽\n结束")
+	expectError(t, "类 矩形\n    属性 整数 宽\n结束")
+	expectError(t, "定义 类 矩形\n    属性 整数 宽\n结束")
+}
+
+func TestPropertyFieldVisibility(t *testing.T) {
+	src := "模型 账户\n    公开 属性 字符串 名字\n    私有 属性 整数 余额\n结束"
+	prog := mustParse(t, src)
+	cls := prog.Statements[0].(*ast.ClassStmt)
+	if len(cls.Fields) != 2 {
+		t.Fatalf("应有 2 个字段，实际 %d", len(cls.Fields))
+	}
+	if cls.Fields[0].Visibility != ast.VisPublic || cls.Fields[0].Name != "名字" {
+		t.Fatalf("公开字段解析错误：%+v", cls.Fields[0])
+	}
+	if cls.Fields[1].Visibility != ast.VisPrivate || cls.Fields[1].Name != "余额" {
+		t.Fatalf("私有字段解析错误：%+v", cls.Fields[1])
+	}
+}
+
+func TestPropertyKeywordTokenized(t *testing.T) {
+	src := "模型 点\n    属性 整数 x\n结束"
+	prog := mustParse(t, src)
+	cls := prog.Statements[0].(*ast.ClassStmt)
+	if len(cls.Fields) != 1 || cls.Fields[0].Name != "x" || cls.Fields[0].Type != ast.TypeInt {
+		t.Fatalf("属性 字段解析错误：%+v", cls.Fields)
+	}
+}
+
+func TestModelBodyVarRejected(t *testing.T) {
+	expectError(t, "模型 矩形\n    变量 整数 宽\n结束")
+}
+
+func TestVisibilityRequiresProperty(t *testing.T) {
+	expectError(t, "模型 矩形\n    公开 整数 宽\n结束")
 }

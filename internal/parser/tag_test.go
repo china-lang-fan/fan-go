@@ -32,7 +32,7 @@ func TestParseFunctionTag(t *testing.T) {
 func TestParseClassTag(t *testing.T) {
 	src := `@标记(说明 = "模型")
 模型 用户
-    变量 名称
+    属性 名称
 结束`
 	prog, errs := ParseProgram(src)
 	if len(errs) > 0 {

@@ -117,6 +117,7 @@ const (
 	INTERFACE Type = "INTERFACE"
 	TYPEDEF   Type = "TYPEDEF"
 	EMBED     Type = "EMBED"
+	PROPERTY  Type = "PROPERTY"
 	DOT       Type = "DOT"
 	COLON     Type = "COLON"
 )
@@ -206,6 +207,7 @@ var keywords = map[string]Type{
 	"接口":   INTERFACE,
 	"类型":   TYPEDEF,
 	"嵌入":   EMBED,
+	"属性":   PROPERTY,
 }
 
 func Lookup(ident string) (Type, bool) {

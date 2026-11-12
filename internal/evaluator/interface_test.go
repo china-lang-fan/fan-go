@@ -12,7 +12,7 @@ const ifaceDogSrc = `
 结束
 
 定义 模型 狗
-    变量 字符串 名
+    属性 字符串 名
 结束
 定义 狗 的 方法 初始化(字符串 名)
     自己.名 = 名
@@ -104,7 +104,7 @@ func TestInterfaceEmbedding(t *testing.T) {
     方法 关闭()
 结束
 定义 模型 内存流
-    变量 字符串 缓冲
+    属性 字符串 缓冲
 结束
 定义 内存流 的 方法 初始化(字符串 初始)
     自己.缓冲 = 初始
@@ -240,7 +240,7 @@ func TestInterfaceUntypedImplStillSatisfies(t *testing.T) {
 func TestInterfaceExactSignatureRequired(t *testing.T) {
 	src := `
 定义 模型 动物
-    变量 字符串 名
+    属性 字符串 名
 结束
 定义 模型 狗
     嵌入 动物

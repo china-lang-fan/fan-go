@@ -324,7 +324,7 @@ func TestDefineFirstForms(t *testing.T) {
 返回 1
 结束`,
 		`定义 模型 M
-变量 整数 a
+属性 整数 a
 结束`,
 		`定义 接口 I
 方法 f() -> 整数
@@ -334,7 +334,7 @@ func TestDefineFirstForms(t *testing.T) {
 返回 1
 结束`,
 		`定义 公开 模型 N
-变量 整数 a
+属性 整数 a
 结束`,
 		`定义 私有 类型 U = 整数 或 字符串`,
 		`公开 定义 函数 h() -> 整数

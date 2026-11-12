@@ -4,8 +4,8 @@ import "testing"
 
 const embedModels = `
 定义 模型 动物
-    公开 变量 字符串 名字
-    变量 字符串 备注
+    公开 属性 字符串 名字
+    属性 字符串 备注
 结束
 定义 动物 的 方法 初始化(字符串 名字)
     自己.名字 = 名字
@@ -17,7 +17,7 @@ const embedModels = `
 
 定义 模型 狗
     嵌入 动物
-    公开 变量 字符串 品种
+    公开 属性 字符串 品种
 结束
 定义 狗 的 方法 初始化(字符串 名字， 字符串 品种)
     自己.名字 = 名字
@@ -71,10 +71,10 @@ d.名字
 func TestAmbiguousEmbeddedFieldRejected(t *testing.T) {
 	src := `
 定义 模型 A
-    变量 整数 x
+    属性 整数 x
 结束
 定义 模型 B
-    变量 整数 x
+    属性 整数 x
 结束
 定义 模型 C
     嵌入 A
@@ -91,10 +91,10 @@ c.x
 func TestAmbiguousEmbeddedFieldWriteRejected(t *testing.T) {
 	src := `
 定义 模型 A
-    变量 整数 x
+    属性 整数 x
 结束
 定义 模型 B
-    变量 整数 x
+    属性 整数 x
 结束
 定义 模型 C
     嵌入 A
@@ -133,10 +133,10 @@ c.响()
 func TestAmbiguousResolvedByQualification(t *testing.T) {
 	src := `
 定义 模型 A
-    变量 整数 x
+    属性 整数 x
 结束
 定义 模型 B
-    变量 整数 x
+    属性 整数 x
 结束
 定义 模型 C
     嵌入 A
@@ -152,8 +152,8 @@ c.A.x
 
 const privateEmbedModels = `
 定义 模型 动物
-    公开 变量 字符串 名字
-    私有 变量 整数 年龄
+    公开 属性 字符串 名字
+    私有 属性 整数 年龄
 结束
 定义 动物 的 方法 初始化(字符串 名字)
     自己.名字 = 名字
@@ -170,8 +170,8 @@ const privateEmbedModels = `
 func TestPrivateFieldNotAccessibleThroughEmbed(t *testing.T) {
 	src := `
 定义 模型 动物
-    公开 变量 字符串 名字
-    私有 变量 整数 年龄
+    公开 属性 字符串 名字
+    私有 属性 整数 年龄
 结束
 定义 动物 的 方法 初始化(字符串 名字)
     自己.名字 = 名字

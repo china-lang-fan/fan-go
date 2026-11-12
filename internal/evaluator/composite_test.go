@@ -4,15 +4,15 @@ import "testing"
 
 const compositeClassSrc = `
 定义 模型 矩形
-    公开 变量 整数 宽
-    公开 变量 整数 高
-    私有 变量 整数 密
+    公开 属性 整数 宽
+    公开 属性 整数 高
+    私有 属性 整数 密
 结束
 定义 模型 基础
-    公开 变量 整数 编号
+    公开 属性 整数 编号
 结束
 定义 模型 画布
-    公开 变量 字符串 标题
+    公开 属性 字符串 标题
     嵌入 矩形
     嵌入 基础
 结束
@@ -45,7 +45,7 @@ func TestCompositeLiteralZeroAndSubset(t *testing.T) {
 func TestCompositeLiteralDoesNotCallInit(t *testing.T) {
 	res, err := runSource(t, `
 定义 模型 矩形
-    公开 变量 整数 宽
+    公开 属性 整数 宽
 结束
 定义 矩形 的 方法 初始化(整数 宽)
     自己.宽 = 宽 乘 100
@@ -93,7 +93,7 @@ func TestCompositeLiteralEmbedWrongType(t *testing.T) {
 func TestCompositeLiteralMethodChain(t *testing.T) {
 	res, err := runSource(t, `
 定义 模型 矩形
-    公开 变量 整数 宽
+    公开 属性 整数 宽
 结束
 定义 矩形 的 方法 翻倍() -> 整数
     返回 自己.宽 乘 2
@@ -110,8 +110,8 @@ func TestCompositeLiteralMethodChain(t *testing.T) {
 func TestCompositeLiteralCrossModule(t *testing.T) {
 	dir := writeTempModule(t, "图形", `
 公开 定义 模型 矩形
-    公开 变量 整数 宽
-    公开 变量 整数 高
+    公开 属性 整数 宽
+    公开 属性 整数 高
 结束
 `)
 	src := `导入 "` + dir + `/图形" 作为 图形
