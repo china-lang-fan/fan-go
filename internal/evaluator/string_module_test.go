@@ -1,8 +1,6 @@
 package evaluator
 
 import (
-	"os"
-	"path/filepath"
 	"testing"
 
 	"fan/internal/ast"
@@ -12,31 +10,13 @@ import (
 
 func setupStringModule(t *testing.T) *Environment {
 	t.Helper()
-	dir := t.TempDir()
-	data, err := os.ReadFile(filepath.Join("..", "..", "..", "fan-sdk", "字符串.凡"))
-	if err != nil {
-		t.Fatalf("读取文本模块失败：%v", err)
-	}
-	if err := os.WriteFile(filepath.Join(dir, "字符串.凡"), data, 0600); err != nil {
-		t.Fatalf("写入文本模块失败：%v", err)
-	}
-	systemData, err := os.ReadFile(filepath.Join("..", "..", "..", "fan-sdk", "系统.凡"))
-	if err != nil {
-		t.Fatalf("读取系统模块失败：%v", err)
-	}
-	if err := os.WriteFile(filepath.Join(dir, "系统.凡"), systemData, 0600); err != nil {
-		t.Fatalf("写入系统模块失败：%v", err)
-	}
-	env := NewEnvironment()
-	env.BaseDir = dir
-	env.Loader = NewLoader(dir)
-	return env
+	return setupSDKModuleEnv(t, "系统.凡", "字符串.凡")
 }
 
 func evalStringModule(t *testing.T, src string) object.Object {
 	t.Helper()
 	env := setupStringModule(t)
-	progAST, errs := parser.ParseProgram(`导入 "字符串" 作为 文本模块
+	progAST, errs := parser.ParseProgram(`导入 "库/字符串" 作为 文本模块
 ` + src)
 	if len(errs) > 0 {
 		t.Fatalf("解析失败：%v", errs)

@@ -1,8 +1,6 @@
 package evaluator
 
 import (
-	"os"
-	"path/filepath"
 	"testing"
 
 	"fan/internal/ast"
@@ -12,26 +10,13 @@ import (
 
 func setupTimeModule(t *testing.T) *Environment {
 	t.Helper()
-	dir := t.TempDir()
-	for _, name := range []string{"系统.凡", "时间.凡"} {
-		data, err := os.ReadFile(filepath.Join("..", "..", "..", "fan-sdk", name))
-		if err != nil {
-			t.Fatalf("读取 %s 失败：%v", name, err)
-		}
-		if err := os.WriteFile(filepath.Join(dir, name), data, 0600); err != nil {
-			t.Fatalf("写入 %s 失败：%v", name, err)
-		}
-	}
-	env := NewEnvironment()
-	env.BaseDir = dir
-	env.Loader = NewLoader(dir)
-	return env
+	return setupSDKModuleEnv(t, "系统.凡", "时间.凡")
 }
 
 func evalTimeModule(t *testing.T, src string) object.Object {
 	t.Helper()
 	env := setupTimeModule(t)
-	progAST, errs := parser.ParseProgram(`导入 "时间" 作为 时间模块
+	progAST, errs := parser.ParseProgram(`导入 "库/时间" 作为 时间模块
 ` + src)
 	if len(errs) > 0 {
 		t.Fatalf("解析失败：%v", errs)

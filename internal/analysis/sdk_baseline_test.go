@@ -10,7 +10,8 @@ import (
 // undefined-name 与 import-not-found 不产生误报。
 func TestSDKBaselineNoUndefined(t *testing.T) {
 	sdkDir := filepath.Join("..", "..", "..", "fan-sdk")
-	files, err := filepath.Glob(filepath.Join(sdkDir, "*.凡"))
+	// 标准库已按 库/ 子目录组织，模块间用根相对路径（库/系统）互导。
+	files, err := filepath.Glob(filepath.Join(sdkDir, "库", "*.凡"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -22,8 +23,8 @@ func TestSDKBaselineNoUndefined(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		// 以 SDK 目录为基目录构建索引，使裸模块名（如“系统”）能解析。
-		uri := "file://" + sdkDir + "/" + filepath.Base(f)
+		// 以 SDK 根为基目录构建索引，使根相对导入（库/系统）能经搜索目录解析。
+		uri := "file://" + f
 		idx := buildIndexWithBase(sdkDir, uri, string(data))
 		for _, d := range AnalyzeIndex(idx) {
 			if d.Code == "undefined-name" || d.Code == "import-not-found" {

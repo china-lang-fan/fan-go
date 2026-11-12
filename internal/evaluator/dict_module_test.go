@@ -1,8 +1,6 @@
 package evaluator
 
 import (
-	"os"
-	"path/filepath"
 	"testing"
 
 	"fan/internal/ast"
@@ -12,26 +10,13 @@ import (
 
 func setupDictModule(t *testing.T) *Environment {
 	t.Helper()
-	dir := t.TempDir()
-	for _, name := range []string{"系统.凡", "字典.凡"} {
-		data, err := os.ReadFile(filepath.Join("..", "..", "..", "fan-sdk", name))
-		if err != nil {
-			t.Fatalf("读取 %s 失败：%v", name, err)
-		}
-		if err := os.WriteFile(filepath.Join(dir, name), data, 0600); err != nil {
-			t.Fatalf("写入 %s 失败：%v", name, err)
-		}
-	}
-	env := NewEnvironment()
-	env.BaseDir = dir
-	env.Loader = NewLoader(dir)
-	return env
+	return setupSDKModuleEnv(t, "系统.凡", "字典.凡")
 }
 
 func evalDictModule(t *testing.T, src string) object.Object {
 	t.Helper()
 	env := setupDictModule(t)
-	progAST, errs := parser.ParseProgram(`导入 "字典" 作为 字典模块
+	progAST, errs := parser.ParseProgram(`导入 "库/字典" 作为 字典模块
 ` + src)
 	if len(errs) > 0 {
 		t.Fatalf("解析失败：%v", errs)
@@ -54,7 +39,7 @@ func TestDictModuleEntriesAndMerge(t *testing.T) {
 }
 
 func TestDictModuleTransform(t *testing.T) {
-	src := `函数 加倍(值 整数, 键 字符串) -> 整数
+	src := `函数 加倍(整数 值， 字符串 键) -> 整数
     返回 值 * 2
 结束
 变量 d = {"a": 1}

@@ -13,12 +13,16 @@ import (
 
 func copySDKFile(t *testing.T, dir, name string) {
 	t.Helper()
-	data, err := os.ReadFile(filepath.Join("..", "..", "..", "fan-sdk", name))
-	if err != nil {
-		t.Fatalf("读取 %s 失败：%v", name, err)
+	libDir := filepath.Join(dir, "库")
+	if err := os.MkdirAll(libDir, 0o700); err != nil {
+		t.Fatalf("创建临时 库 目录失败：%v", err)
 	}
-	if err := os.WriteFile(filepath.Join(dir, name), data, 0600); err != nil {
-		t.Fatalf("写入 %s 失败：%v", name, err)
+	data, err := os.ReadFile(filepath.Join("..", "..", "..", "fan-sdk", "库", name))
+	if err != nil {
+		t.Fatalf("读取 库/%s 失败：%v", name, err)
+	}
+	if err := os.WriteFile(filepath.Join(libDir, name), data, 0600); err != nil {
+		t.Fatalf("写入 库/%s 失败：%v", name, err)
 	}
 }
 
@@ -26,7 +30,7 @@ func TestRunnerPassingAndFailing(t *testing.T) {
 	dir := t.TempDir()
 	copySDKFile(t, dir, "系统.凡")
 	copySDKFile(t, dir, "测试.凡")
-	src := `导入 "测试" 作为 断言模块
+	src := `导入 "库/测试" 作为 断言模块
 
 函数 测试通过()
     断言模块.断言相等(1, 1)
@@ -65,7 +69,7 @@ func TestRunnerTaggedTest(t *testing.T) {
 	dir := t.TempDir()
 	copySDKFile(t, dir, "系统.凡")
 	copySDKFile(t, dir, "测试.凡")
-	src := `导入 "测试" 作为 断言模块
+	src := `导入 "库/测试" 作为 断言模块
 
 @测试
 函数 标签用例()

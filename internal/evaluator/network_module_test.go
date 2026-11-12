@@ -14,27 +14,14 @@ import (
 
 func setupNetworkModule(t *testing.T) (*Environment, string) {
 	t.Helper()
-	dir := t.TempDir()
-	files := []string{"系统.凡", "字典.凡", "文件.凡", "编码.凡", "转换.凡", "网络.凡"}
-	for _, name := range files {
-		data, err := os.ReadFile(filepath.Join("..", "..", "..", "fan-sdk", name))
-		if err != nil {
-			t.Fatalf("读取 %s 失败：%v", name, err)
-		}
-		if err := os.WriteFile(filepath.Join(dir, name), data, 0600); err != nil {
-			t.Fatalf("写入 %s 失败：%v", name, err)
-		}
-	}
-	env := NewEnvironment()
-	env.BaseDir = dir
-	env.Loader = NewLoader(dir)
-	return env, dir
+	env := setupSDKModuleEnv(t, "系统.凡", "字典.凡", "文件.凡", "编码.凡", "转换.凡", "网络.凡")
+	return env, env.BaseDir
 }
 
 func evalNetworkScript(t *testing.T, src string) object.Object {
 	t.Helper()
 	env, _ := setupNetworkModule(t)
-	progAST, errs := parser.ParseProgram(`导入 "网络" 作为 网络模块
+	progAST, errs := parser.ParseProgram(`导入 "库/网络" 作为 网络模块
 ` + src)
 	if len(errs) > 0 {
 		t.Fatalf("解析失败：%v", errs)
@@ -102,7 +89,7 @@ func TestNetworkModuleDownload(t *testing.T) {
 	defer server.Close()
 	env, dir := setupNetworkModule(t)
 	target := filepath.Join(dir, "下载.txt")
-	progAST, errs := parser.ParseProgram(`导入 "网络" 作为 网络模块
+	progAST, errs := parser.ParseProgram(`导入 "库/网络" 作为 网络模块
 网络模块.下载("` + server.URL + `", "` + target + `", {"timeout": 2})`)
 	if len(errs) > 0 {
 		t.Fatalf("解析失败：%v", errs)

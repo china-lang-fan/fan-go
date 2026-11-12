@@ -1,8 +1,6 @@
 package evaluator
 
 import (
-	"os"
-	"path/filepath"
 	"testing"
 
 	"fan/internal/ast"
@@ -10,16 +8,8 @@ import (
 )
 
 func TestSystemModuleWrapsNativeFunctions(t *testing.T) {
-	dir := t.TempDir()
-	data, err := os.ReadFile(filepath.Join("..", "..", "..", "fan-sdk", "系统.凡"))
-	if err != nil {
-		t.Fatalf("读取系统模块失败：%v", err)
-	}
-	systemPath := filepath.Join(dir, "系统.凡")
-	if err := os.WriteFile(systemPath, data, 0600); err != nil {
-		t.Fatalf("写入系统模块失败：%v", err)
-	}
-	src := `导入 "系统" 作为 系统
+	env := setupSDKModuleEnv(t, "系统.凡")
+	src := `导入 "库/系统" 作为 系统
 变量 结果 = []
 结果 = 追加(结果, 系统.类型名("x"))
 结果 = 追加(结果, 系统.截断(1.8))
@@ -33,9 +23,6 @@ func TestSystemModuleWrapsNativeFunctions(t *testing.T) {
 		t.Fatalf("解析失败：%v", errs)
 	}
 	var prog *ast.Program = progAST
-	env := NewEnvironment()
-	env.BaseDir = dir
-	env.Loader = NewLoader(dir)
 	res, err := Eval(prog, env)
 	if err != nil {
 		t.Fatalf("运行错误：%v", err)

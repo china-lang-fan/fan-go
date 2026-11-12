@@ -124,6 +124,9 @@ func moduleSearchDirs(base string) []string {
 		dirs = append(dirs, abs)
 	}
 	add(base)
+	if env := os.Getenv("FAN_SDK"); env != "" {
+		add(env)
+	}
 	if executable, err := os.Executable(); err == nil {
 		execDir := filepath.Dir(executable)
 		add(execDir)
