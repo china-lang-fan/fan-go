@@ -106,18 +106,26 @@ func prepareDeferredValueCall(rt *Runtime, node *ast.CallExpr, env *Environment)
 	return deferredCall{callable: callable, args: flattenSpreadMarkers(spreadTuples(args)), pos: node.Position}, nil
 }
 
-func evalThrowStmt(stmt *ast.ThrowStmt, env *Environment) (object.Object, error) {
-	value, err := Eval(stmt.Value, env)
+// evalCrash 实现内建函数 `崩溃了(错误描述)`：构造一个携带当前调用栈的规范
+// 错误对象，并以 panic 轨（panicSignal）抛出，可被上层 `稍后` 中的 `恢复()` 接管。
+// 仅接受单个参数，非字符串按文本化处理。
+func evalCrash(node *ast.CallExpr, env *Environment) (object.Object, error) {
+	if len(node.Args) != 1 {
+		return nil, &EvalError{
+			Pos:    node.Position,
+			Reason: fmt.Sprintf("崩溃了 需要 1 个参数（错误描述），实际 %d 个", len(node.Args)),
+		}
+	}
+	value, err := Eval(node.Args[0], env)
 	if err != nil {
 		return nil, err
 	}
 	if value == nil {
 		value = object.Null
 	}
-	if e, ok := value.(*object.Error); ok && len(e.Stack) == 0 {
-		e.Stack = env.Runtime().Stack()
-	}
-	return nil, &panicSignal{value: value}
+	e := object.NewError(object.Format(value))
+	e.Stack = env.Runtime().Stack()
+	return nil, &panicSignal{value: e}
 }
 
 func runDefers(rt *Runtime, frame *callFrame) error {

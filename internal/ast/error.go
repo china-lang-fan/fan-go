@@ -23,14 +23,3 @@ func (n *DeferStmt) statementNode() {}
 func (n *DeferStmt) String() string {
 	return fmt.Sprintf("稍后 %s", n.Call.String())
 }
-
-type ThrowStmt struct {
-	Position Position
-	Value    Expression
-}
-
-func (n *ThrowStmt) Pos() Position  { return n.Position }
-func (n *ThrowStmt) statementNode() {}
-func (n *ThrowStmt) String() string {
-	return fmt.Sprintf("抛出 %s", n.Value.String())
-}

@@ -29,13 +29,13 @@ func TestDeferLIFO(t *testing.T) {
 	}
 }
 
-func TestThrowRecover(t *testing.T) {
+func TestCrashRecover(t *testing.T) {
 	src := strings.Join([]string{
 		`函数 f()`,
 		`    稍后 函数()`,
-		`        全局结果 = 捕获()`,
+		`        全局结果 = 恢复().消息`,
 		`    结束`,
-		`    抛出 "失败"`,
+		`    崩溃了("失败")`,
 		`结束`,
 		`变量 全局结果 = 空`,
 		`f()`,
@@ -46,34 +46,28 @@ func TestThrowRecover(t *testing.T) {
 		t.Fatalf("运行错误：%v", err)
 	}
 	if res.Inspect() != `失败` {
-		t.Fatalf("应捕获抛出值，实际 %s", res.Inspect())
+		t.Fatalf("应恢复崩溃错误的消息，实际 %s", res.Inspect())
 	}
 }
 
-func TestThrowAnyInstance(t *testing.T) {
+func TestCrashBuildsErrorObject(t *testing.T) {
 	src := strings.Join([]string{
-		`模型 异常`,
-		`    属性 字符串 消息`,
-		`结束`,
 		`函数 f()`,
 		`    稍后 函数()`,
-		`        变量 值 = 捕获()`,
-		`        全局消息 = 值.消息`,
+		`        全局错误 = 恢复()`,
 		`    结束`,
-		`    变量 e = 异常()`,
-		`    e.消息 = "自定义"`,
-		`    抛出 e`,
+		`    崩溃了("磁盘满")`,
 		`结束`,
-		`变量 全局消息 = 空`,
+		`变量 全局错误 = 空`,
 		`f()`,
-		`全局消息`,
+		`全局错误.错误码`,
 	}, "\n")
 	res, err := runSource(t, src)
 	if err != nil {
 		t.Fatalf("运行错误：%v", err)
 	}
-	if res.Inspect() != `自定义` {
-		t.Fatalf("应捕获模型实例，实际 %s", res.Inspect())
+	if res.Inspect() != `` {
+		t.Fatalf("崩溃错误默认错误码应为空串，实际 %s", res.Inspect())
 	}
 }
 
@@ -100,14 +94,14 @@ func TestDeferImmediateArguments(t *testing.T) {
 	}
 }
 
-func TestNestedThrowRecover(t *testing.T) {
+func TestNestedCrashRecover(t *testing.T) {
 	src := strings.Join([]string{
 		`函数 内层()`,
-		`    抛出 123`,
+		`    崩溃了("深层失败")`,
 		`结束`,
 		`函数 外层()`,
 		`    稍后 函数()`,
-		`        全局结果 = 捕获()`,
+		`        全局结果 = 恢复().消息`,
 		`    结束`,
 		`    内层()`,
 		`结束`,
@@ -119,15 +113,15 @@ func TestNestedThrowRecover(t *testing.T) {
 	if err != nil {
 		t.Fatalf("运行错误：%v", err)
 	}
-	if res.Inspect() != `123` {
-		t.Fatalf("应捕获嵌套抛出值，实际 %s", res.Inspect())
+	if res.Inspect() != `深层失败` {
+		t.Fatalf("应恢复嵌套崩溃，实际 %s", res.Inspect())
 	}
 }
 
 func TestRecoverOnlyInDefer(t *testing.T) {
 	src := strings.Join([]string{
 		`函数 f()`,
-		`    返回 捕获()`,
+		`    返回 恢复()`,
 		`结束`,
 		`f()`,
 	}, "\n")
@@ -136,13 +130,22 @@ func TestRecoverOnlyInDefer(t *testing.T) {
 		t.Fatalf("运行错误：%v", err)
 	}
 	if res.Kind() != object.KindNil {
-		t.Fatalf("非稍后中的捕获应为空，实际 %s", res.Inspect())
+		t.Fatalf("非稍后中的恢复应为空，实际 %s", res.Inspect())
 	}
 }
 
-func TestUncaughtThrow(t *testing.T) {
-	src := `抛出 "致命"`
+func TestUnrecoveredCrash(t *testing.T) {
+	src := `崩溃了("致命")`
 	if _, err := runSource(t, src); err == nil {
-		t.Fatal("未捕获的抛出应返回错误")
+		t.Fatal("未恢复的崩溃应返回错误")
+	}
+}
+
+func TestCrashArgCount(t *testing.T) {
+	if _, err := runSource(t, `崩溃了()`); err == nil {
+		t.Fatal("无参崩溃了应报错")
+	}
+	if _, err := runSource(t, `崩溃了("a", "b")`); err == nil {
+		t.Fatal("多参崩溃了应报错")
 	}
 }

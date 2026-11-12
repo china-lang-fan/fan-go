@@ -177,8 +177,6 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseForEachStatement()
 	case p.cur.Type == token.DEFER:
 		return p.parseDeferStatement()
-	case p.cur.Type == token.THROW:
-		return p.parseThrowStatement()
 	case p.cur.Type == token.IMPORT:
 		return p.parseImportStatement()
 	case p.cur.Type == token.PUBLIC:
@@ -1703,21 +1701,6 @@ func (p *Parser) parseDeferStatement() ast.Statement {
 		p.addError(p.cur, "稍后 后必须是函数调用或无参函数")
 		return nil
 	}
-}
-
-func (p *Parser) parseThrowStatement() ast.Statement {
-	pos := ast.Position{Line: p.cur.Line, Column: p.cur.Column}
-	p.next()
-	if p.cur.Type == token.NEWLINE || p.cur.Type == token.EOF {
-		p.addError(p.cur, "抛出 后需要一个值")
-		return nil
-	}
-	value := p.parseExpression(LOWEST)
-	if value == nil {
-		p.addError(p.cur, "抛出 后需要一个值")
-		return nil
-	}
-	return &ast.ThrowStmt{Position: pos, Value: value}
 }
 
 func (p *Parser) parseMember(left ast.Expression) ast.Expression {

@@ -290,8 +290,8 @@ func TestCheckExpression(t *testing.T) {
 	}
 }
 
-func TestDeferAndThrow(t *testing.T) {
-	src := "稍后 清理(1)\n抛出 \"失败\""
+func TestDeferAndCrashCall(t *testing.T) {
+	src := "稍后 清理(1)\n崩溃了(\"失败\")"
 	prog := mustParse(t, src)
 	deferStmt, ok := prog.Statements[0].(*ast.DeferStmt)
 	if !ok {
@@ -300,12 +300,13 @@ func TestDeferAndThrow(t *testing.T) {
 	if _, ok := deferStmt.Call.(*ast.CallExpr); !ok {
 		t.Fatalf("稍后调用解析错误：%T", deferStmt.Call)
 	}
-	throwStmt, ok := prog.Statements[1].(*ast.ThrowStmt)
+	// 崩溃了 已函数化：第二行是普通表达式语句（函数调用），不再有独立语句节点
+	exprStmt, ok := prog.Statements[1].(*ast.ExpressionStmt)
 	if !ok {
-		t.Fatalf("应为抛出语句，实际 %T", prog.Statements[1])
+		t.Fatalf("崩溃了应为表达式语句，实际 %T", prog.Statements[1])
 	}
-	if throwStmt.Value == nil {
-		t.Fatal("抛出值不能为空")
+	if _, ok := exprStmt.Expression.(*ast.CallExpr); !ok {
+		t.Fatalf("崩溃了调用解析错误：%T", exprStmt.Expression)
 	}
 }
 

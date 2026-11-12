@@ -105,8 +105,6 @@ func Eval(node ast.Node, env *Environment) (object.Object, error) {
 		return evalForEachStmt(n, env)
 	case *ast.DeferStmt:
 		return evalDeferStmt(env.Runtime(), n, env)
-	case *ast.ThrowStmt:
-		return evalThrowStmt(n, env)
 	case *ast.CheckExpr:
 		return evalCheckExpr(n, env)
 	case *ast.BreakStmt:
@@ -866,8 +864,11 @@ func evalReturnStmt(node *ast.ReturnStmt, env *Environment) (object.Object, erro
 }
 
 func evalCallExprDispatch(node *ast.CallExpr, env *Environment) (object.Object, error) {
-	if ident, ok := node.Callee.(*ast.Identifier); ok && ident.Name == "捕获" && len(node.Args) == 0 {
+	if ident, ok := node.Callee.(*ast.Identifier); ok && ident.Name == "恢复" && len(node.Args) == 0 {
 		return evalRecover(env.Runtime()), nil
+	}
+	if ident, ok := node.Callee.(*ast.Identifier); ok && ident.Name == "崩溃了" {
+		return evalCrash(node, env)
 	}
 	if chain, ok := collectMixfixCallChain(node, env); ok && (chain.moduleRoot != "" || env.mixfixFunctions().hasRoot(chain.root)) {
 		return evalMixfixCall(chain, env, node.Position)

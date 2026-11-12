@@ -57,7 +57,6 @@ func TestLookupKeyword(t *testing.T) {
 		{"错误", TYPE_ERROR},
 		{"字典", TYPE_DICT},
 		{"稍后", DEFER},
-		{"抛出", THROW},
 		{"检查", CHECK},
 	}
 	for _, c := range cases {
@@ -73,7 +72,7 @@ func TestLookupKeyword(t *testing.T) {
 }
 
 func TestLookupNonKeyword(t *testing.T) {
-	for _, ident := range []string{"名字", "abc", "年龄", "注释", "hello", "捕获", "尝试"} {
+	for _, ident := range []string{"名字", "abc", "年龄", "注释", "hello", "捕获", "尝试", "崩溃了", "恢复"} {
 		if _, ok := Lookup(ident); ok {
 			t.Errorf("%q 不应被识别为语法关键字（注释由 lexer 处理）", ident)
 		}

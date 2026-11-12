@@ -10,7 +10,7 @@ import (
 )
 
 // Runtime 是一次独立的凡程序运行实例，承载此前散落在包级变量中的
-// 全部可变状态：调用帧（稍后/抛出/捕获）、标准输出、进程上下文、
+// 全部可变状态：调用帧（稍后/崩溃/恢复）、标准输出、进程上下文、
 // 标签处理器、内建类与原生函数表。
 //
 // 不同 Runtime 之间完全隔离，可以在同一个进程中并发或重入地执行
@@ -109,7 +109,7 @@ func (r *Runtime) Stack() []object.StackFrame {
 	return out
 }
 
-// --- 调用帧：稍后 / 抛出 / 捕获 ---
+// --- 调用帧：稍后 / 崩溃 / 恢复 ---
 
 func (r *Runtime) pushFrame() *callFrame {
 	frame := &callFrame{}
