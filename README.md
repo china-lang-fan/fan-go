@@ -95,7 +95,7 @@ fan help
 标准库（fan-sdk）与本仓库分离，按 `库/`、`测试/` 分目录组织。模块搜索顺序为：
 脚本所在目录 → 环境变量 `FAN_SDK` → 可执行文件旁 → 系统安装位置。
 
-更多示例见 [`examples/`](./examples)，完整文档见 <https://china-lang-fan.github.io/>。
+完整示例见 Rust 实现仓库 [`fan-rust/examples`](https://github.com/china-lang-fan/fan-rust)，完整文档见 <https://china-lang-fan.github.io/>。
 
 ## 从源码构建
 
