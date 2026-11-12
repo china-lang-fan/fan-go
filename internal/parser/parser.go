@@ -193,7 +193,9 @@ func (p *Parser) parseStatement() ast.Statement {
 		case p.cur.Type == token.PRIVATE:
 			return p.parseVisibilityStatement(ast.VisPrivate)
 		case p.cur.Type == token.FUNCTION:
-			return p.parseFunctionStatement()
+			return p.parseFunctionStatement(nil)
+		case p.cur.Type == token.LOCAL:
+			return p.parseNativeFunctionStatement()
 		case p.cur.Type == token.CLASS:
 			return p.parseClassStatement()
 		case p.cur.Type == token.INTERFACE:
@@ -210,7 +212,9 @@ func (p *Parser) parseStatement() ast.Statement {
 			return p.parseVarDecl()
 		}
 	case p.cur.Type == token.FUNCTION:
-		return p.parseFunctionStatement()
+		return p.parseFunctionStatement(nil)
+	case p.cur.Type == token.LOCAL:
+		return p.parseNativeFunctionStatement()
 	case p.cur.Type == token.RETURN:
 		return p.parseReturnStatement()
 	case p.cur.Type == token.CLASS:
@@ -1564,7 +1568,9 @@ func (p *Parser) parseVisibilityStatement(vis ast.Visibility) ast.Statement {
 	var inner ast.Statement
 	switch p.cur.Type {
 	case token.FUNCTION:
-		inner = p.parseFunctionStatement()
+		inner = p.parseFunctionStatement(nil)
+	case token.LOCAL:
+		inner = p.parseNativeFunctionStatement()
 	case token.CLASS:
 		inner = p.parseClassStatement()
 	case token.INTERFACE:
@@ -1579,7 +1585,9 @@ func (p *Parser) parseVisibilityStatement(vis ast.Visibility) ast.Statement {
 		p.next()
 		switch {
 		case p.cur.Type == token.FUNCTION:
-			inner = p.parseFunctionStatement()
+			inner = p.parseFunctionStatement(nil)
+		case p.cur.Type == token.LOCAL:
+			inner = p.parseNativeFunctionStatement()
 		case p.cur.Type == token.CLASS:
 			inner = p.parseClassStatement()
 		case p.cur.Type == token.INTERFACE:
@@ -1820,7 +1828,51 @@ func (p *Parser) parseTagExpr() *ast.TagExpr {
 	return tag
 }
 
-func (p *Parser) parseFunctionStatement() ast.Statement {
+// parseNativeFunctionStatement 解析 `定义 本地("模块.函数") 函数 ...`。
+// 硬规则：本地 后必须紧跟括号，括号内只能是单个字符串字面量，随后必须是 函数。
+func (p *Parser) parseNativeFunctionStatement() ast.Statement {
+	native := p.parseNativeDecl()
+	if native == nil {
+		return nil
+	}
+	if p.cur.Type != token.FUNCTION {
+		p.addError(p.cur, "本地 声明后应为 函数 定义")
+		return nil
+	}
+	return p.parseFunctionStatement(native)
+}
+
+// parseNativeDecl 消费 `本地("模块.函数")`，返回本地绑定声明。
+func (p *Parser) parseNativeDecl() *ast.NativeDecl {
+	pos := ast.Position{Line: p.cur.Line, Column: p.cur.Column}
+	p.next() // 消费 本地
+	if p.cur.Type != token.LPAREN {
+		p.addError(p.cur, `本地 后应为括号包裹的字符串字面量：本地("模块.函数")`)
+		return nil
+	}
+	p.next() // 消费 (
+	var spec string
+	switch p.cur.Type {
+	case token.STRING:
+		spec = p.cur.Literal
+		p.next()
+	case token.RPAREN:
+		p.addError(p.cur, "本地 绑定缺少字符串字面量")
+		return nil
+	default:
+		p.addError(p.cur, "本地 绑定只接受字符串字面量，不支持插值或变量")
+		return nil
+	}
+	if p.cur.Type != token.RPAREN {
+		p.addError(p.cur, "本地 绑定只能有一个字符串参数")
+		return nil
+	}
+	p.next() // 消费 )
+	native := ast.ParseNativeDecl(spec, pos)
+	return &native
+}
+
+func (p *Parser) parseFunctionStatement(native *ast.NativeDecl) ast.Statement {
 	pos := ast.Position{Line: p.cur.Line, Column: p.cur.Column}
 	p.next()
 	if !isFunctionNameToken(p.cur.Type) {
@@ -1894,6 +1946,7 @@ func (p *Parser) parseFunctionStatement() ast.Statement {
 		Name:        fullNameText,
 		ReturnTypes: retTypes,
 		Tags:        nil,
+		Native:      native,
 	}
 	if len(segments) > 1 {
 		literal.NameSegments = segments

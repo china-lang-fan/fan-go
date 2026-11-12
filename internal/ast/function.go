@@ -12,6 +12,25 @@ type Parameter struct {
 	Default  Expression
 }
 
+// NativeDecl 表示 `定义 本地("模块.函数") 函数 ...` 中的本地（native）绑定。
+// Spec 是源码里的原始字符串；解析期按第一个 "." 拆成模块前缀（可空）与原生函数名。
+type NativeDecl struct {
+	Spec   string
+	Module string
+	Name   string
+	Position
+}
+
+// ParseNativeDecl 按第一个 "." 拆分绑定字符串，构造本地声明。
+func ParseNativeDecl(spec string, pos Position) NativeDecl {
+	module, name := "", spec
+	if idx := strings.Index(spec, "."); idx > 0 && idx < len(spec)-1 {
+		module = spec[:idx]
+		name = spec[idx+1:]
+	}
+	return NativeDecl{Spec: spec, Module: module, Name: name, Position: pos}
+}
+
 type FunctionLiteral struct {
 	Position     Position
 	Params       []Parameter
@@ -23,6 +42,7 @@ type FunctionLiteral struct {
 	Signature    string
 	ReturnTypes  []DeclType
 	Tags         []*TagExpr
+	Native       *NativeDecl
 }
 
 func (n *FunctionLiteral) Pos() Position   { return n.Position }

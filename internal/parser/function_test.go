@@ -459,3 +459,41 @@ func TestMethodTypeFirstParams(t *testing.T) {
 		t.Fatalf("方法参数解析错误：%+v", method.Function.Params)
 	}
 }
+
+func TestNativeFunctionDecl(t *testing.T) {
+	src := `定义 本地("打印") 函数 输出(任意... 内容)
+    返回 空
+结束`
+	prog := mustParse(t, src)
+	fn := prog.Statements[0].(*ast.VarDecl).Value.(*ast.FunctionLiteral)
+	if fn.Native == nil {
+		t.Fatalf("应解析出本地绑定")
+	}
+	if fn.Native.Spec != "打印" || fn.Native.Name != "打印" || fn.Native.Module != "" {
+		t.Fatalf("本地绑定解析错误：%+v", fn.Native)
+	}
+}
+
+func TestNativeDeclModuleSplit(t *testing.T) {
+	src := `定义 本地("正则.匹配") 函数 匹配(字符串 文本) -> 布尔
+    返回 真
+结束`
+	prog := mustParse(t, src)
+	fn := prog.Statements[0].(*ast.VarDecl).Value.(*ast.FunctionLiteral)
+	if fn.Native == nil || fn.Native.Module != "正则" || fn.Native.Name != "匹配" {
+		t.Fatalf("带模块的本地绑定解析错误：%+v", fn.Native)
+	}
+}
+
+func TestNativeDeclHardRules(t *testing.T) {
+	// 本地 后必须有括号
+	expectError(t, `定义 本地 函数 f()\n结束`)
+	// 括号内不能为空
+	expectError(t, `定义 本地() 函数 f()\n结束`)
+	// 只能有一个字符串参数
+	expectError(t, `定义 本地("a", "b") 函数 f()\n结束`)
+	// 括号内不能是变量
+	expectError(t, `定义 本地(x) 函数 f()\n结束`)
+	// 本地 声明后必须是 函数
+	expectError(t, `定义 本地("打印") 模型 甲\n结束`)
+}

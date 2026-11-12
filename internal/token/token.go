@@ -118,6 +118,7 @@ const (
 	TYPEDEF   Type = "TYPEDEF"
 	EMBED     Type = "EMBED"
 	PROPERTY  Type = "PROPERTY"
+	LOCAL     Type = "LOCAL"
 	DOT       Type = "DOT"
 	COLON     Type = "COLON"
 )
@@ -208,6 +209,7 @@ var keywords = map[string]Type{
 	"类型":   TYPEDEF,
 	"嵌入":   EMBED,
 	"属性":   PROPERTY,
+	"本地":   LOCAL,
 }
 
 func Lookup(ident string) (Type, bool) {
