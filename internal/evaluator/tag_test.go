@@ -5,36 +5,6 @@ import (
 	"testing"
 )
 
-func TestBuiltinTagReplacesImplementation(t *testing.T) {
-	src := `@内建("测试.加一")
-定义 函数 加一(整数 n) -> 整数
-    返回 空
-结束
-加一(41)`
-	res, err := runSource(t, src)
-	if err != nil {
-		t.Fatalf("运行错误：%v", err)
-	}
-	if res.Inspect() != "42" {
-		t.Fatalf("返回值错误：%s", res.Inspect())
-	}
-}
-
-func TestBuiltinTagPrintArray(t *testing.T) {
-	var buf bytes.Buffer
-	src := `@内建("打印")
-定义 函数 输出(任意... 内容)
-    返回 空
-结束
-输出([1, 2, 3])`
-	if _, _, err := runSourceWithOutput(t, src, &buf); err != nil {
-		t.Fatalf("运行错误：%v", err)
-	}
-	if buf.String() != "1 2 3\n" {
-		t.Fatalf("打印输出不符：%q", buf.String())
-	}
-}
-
 func TestTagTooManyPositionalArgs(t *testing.T) {
 	src := `模型 标记
     属性 值
@@ -61,29 +31,18 @@ func TestTagMissingValueField(t *testing.T) {
 	}
 }
 
-func TestUnknownBuiltinFunction(t *testing.T) {
-	src := `@内建("不存在")
+func TestUnknownTagSilentlyIgnored(t *testing.T) {
+	src := `@不存在的标签
 定义 函数 测试()
-    返回 空
-结束`
-	_, err := runSource(t, src)
-	if err == nil {
-		t.Fatal("未注册的内建函数应报错")
-	}
-}
-
-func TestBuiltinTagPrint(t *testing.T) {
-	var buf bytes.Buffer
-	src := `@内建("打印")
-定义 函数 输出(任意... 内容)
-    返回 空
+    返回 7
 结束
-输出("你好，", "凡")`
-	if _, _, err := runSourceWithOutput(t, src, &buf); err != nil {
-		t.Fatalf("运行错误：%v", err)
+测试()`
+	res, err := runSource(t, src)
+	if err != nil {
+		t.Fatalf("未注册标签应静默忽略，却报错：%v", err)
 	}
-	if buf.String() != "你好， 凡\n" {
-		t.Fatalf("打印输出不符：%q", buf.String())
+	if res.Inspect() != "7" {
+		t.Fatalf("应正常执行函数体得 7，实际 %s", res.Inspect())
 	}
 }
 
@@ -160,39 +119,6 @@ func TestFanTagHandlerReadsTag(t *testing.T) {
 	}
 	if res.Inspect() != "标签值" {
 		t.Fatalf("返回值错误：%s", res.Inspect())
-	}
-}
-
-func TestClassTagReplacesConstructor(t *testing.T) {
-	src := `@内建("测试.基础实例")
-模型 用户
-    属性 名称
-结束
-变量 用户实例 = 用户()
-用户实例.值`
-	res, err := runSource(t, src)
-	if err != nil {
-		t.Fatalf("运行错误：%v", err)
-	}
-	if res.Inspect() != "构造替换" {
-		t.Fatalf("构造替换返回值错误：%s", res.Inspect())
-	}
-}
-
-func TestMethodTagReplacesImplementation(t *testing.T) {
-	src := `模型 用户
-结束
-@内建("测试.加一")
-定义 用户 的 方法 编号(整数 基数) -> 整数
-    返回 空
-结束
-用户().编号(41)`
-	res, err := runSource(t, src)
-	if err != nil {
-		t.Fatalf("运行错误：%v", err)
-	}
-	if res.Inspect() != "42" {
-		t.Fatalf("方法标签返回值错误：%s", res.Inspect())
 	}
 }
 

@@ -7,7 +7,7 @@ import (
 )
 
 func TestParseFunctionTag(t *testing.T) {
-	src := `@内建("测试.加一")
+	src := `@标记("测试.加一")
 定义 函数 加一(整数 n) -> 整数
     返回 空
 结束`
@@ -21,7 +21,7 @@ func TestParseFunctionTag(t *testing.T) {
 		t.Fatalf("应解析 1 个标签，实际 %d", len(fn.Tags))
 	}
 	tag := fn.Tags[0]
-	if tag.TypeName != "内建" {
+	if tag.TypeName != "标记" {
 		t.Fatalf("标签名称错误：%s", tag.TypeName)
 	}
 	if len(tag.Positional) != 1 {
@@ -50,7 +50,7 @@ func TestParseClassTag(t *testing.T) {
 func TestParseMethodTag(t *testing.T) {
 	src := `模型 用户
 结束
-@内建("打印")
+@标记("打印")
 定义 用户 的 方法 输出()
 结束`
 	prog, errs := ParseProgram(src)
@@ -90,7 +90,7 @@ func TestParseBareIdentifierArgumentStaysFunction(t *testing.T) {
 }
 
 func TestParseTaggedExport(t *testing.T) {
-	src := `@内建("type")
+	src := `@标记("type")
 公开 函数 type(任意 值) -> 字符串
 结束`
 	prog, errs := ParseProgram(src)

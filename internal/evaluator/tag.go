@@ -90,22 +90,6 @@ func (c *variadicUnwrapCallable) Call(args []tagsys.Object) ([]tagsys.Object, er
 	return c.callable.Call(callArgs)
 }
 
-type methodWithoutReceiverCallable struct {
-	callable tagsys.Callable
-}
-
-func (c *methodWithoutReceiverCallable) Kind() object.Kind { return "函数" }
-func (c *methodWithoutReceiverCallable) Inspect() string {
-	return "<函数 无接收者>"
-}
-
-func (c *methodWithoutReceiverCallable) Call(args []tagsys.Object) ([]tagsys.Object, error) {
-	if len(args) == 0 {
-		return c.callable.Call(args)
-	}
-	return c.callable.Call(args[1:])
-}
-
 type fanCallable struct {
 	fn *Function
 }
@@ -252,7 +236,7 @@ func cloneGoTagHandlers() map[string]tagsys.Handler {
 	return out
 }
 
-// RegisterBuiltinClass 在内建类模板中登记一个内建标签模型。
+// RegisterBuiltinClass 在标签模型模板中登记一个标签模型。
 func RegisterBuiltinClass(name string, fields []ast.FieldDecl) *Class {
 	builtinClassTemplate[name] = append([]ast.FieldDecl(nil), fields...)
 	return &Class{
@@ -273,12 +257,8 @@ func RegisterTagHandler(name string, handler tagsys.Handler) {
 }
 
 func init() {
-	RegisterBuiltinClass("内建", []ast.FieldDecl{
-		{Name: "值", Type: ast.TypeString},
-	})
 	RegisterBuiltinClass("测试", nil)
 	RegisterBuiltinClass("test", nil)
-	RegisterTagHandler("内建", tagsys.HandlerFunc(builtinTagHandler))
 	RegisterNativeFunction("print", nativePrint)
 	RegisterNativeFunction("打印", nativePrint)
 	RegisterNativeFunction("测试.加一", func(_ *Runtime, args []object.Object) ([]object.Object, error) {
@@ -290,14 +270,6 @@ func init() {
 			return nil, fmt.Errorf("测试.加一 参数必须是整数")
 		}
 		return []object.Object{&object.Integer{Value: n.Value + 1}}, nil
-	})
-	RegisterNativeFunction("测试.基础实例", func(_ *Runtime, args []object.Object) ([]object.Object, error) {
-		cls := &Class{
-			Name:    "基础",
-			Fields:  []ast.FieldDecl{{Name: "值", Type: ast.TypeString}},
-			Methods: map[string]*Function{},
-		}
-		return []object.Object{&Instance{Class: cls, Fields: map[string]object.Object{"值": &object.String{Value: "构造替换"}}}}, nil
 	})
 }
 
@@ -313,40 +285,6 @@ func nativePrint(rt *Runtime, args []object.Object) ([]object.Object, error) {
 	}
 	writeObjects(rt.Stdout(), values)
 	return []object.Object{object.Null}, nil
-}
-
-// builtinTagHandler 通过 runtimeTagContext 访问运行实例上的原生函数表。
-func builtinTagHandler(ctx tagsys.Context) error {
-	tag, ok := ctx.Tag().(*Instance)
-	if !ok || tag.Class.Name != "内建" {
-		return fmt.Errorf("内建标签格式错误")
-	}
-	r := tag.resolveField("值")
-	if !r.found {
-		return fmt.Errorf("内建标签缺少值")
-	}
-	value := r.value
-	name, ok := value.(*object.String)
-	if !ok {
-		return fmt.Errorf("内建标签值必须是字符串")
-	}
-	rtCtx, ok := ctx.(*runtimeTagContext)
-	if !ok {
-		return fmt.Errorf("内建标签缺少运行实例")
-	}
-	fn, ok := rtCtx.rt.nativeFunctions[name.Value]
-	if !ok {
-		return fmt.Errorf("内建函数未注册：%s", name.Value)
-	}
-	if targetIsVariadic(ctx.Target()) {
-		fn = &variadicUnwrapCallable{callable: fn}
-	}
-	if ctx.Target().TargetKind() == tagsys.TargetMethod {
-		ctx.ReplaceMethod(&methodWithoutReceiverCallable{callable: fn})
-		return nil
-	}
-	ctx.ReplaceCallable(fn)
-	return nil
 }
 
 func createTagInstance(rt *Runtime, cls *Class, tagNode *ast.TagExpr, env *Environment) (*Instance, error) {
@@ -391,7 +329,8 @@ func processTags(rt *Runtime, target tagsys.Target, tagExprs []*ast.TagExpr, env
 	for _, tagNode := range tagExprs {
 		cls, ok := rt.resolveClass(tagNode.TypeName, env)
 		if !ok {
-			return &EvalError{Pos: tagNode.Position, Reason: fmt.Sprintf("标签模型 %s 未定义", tagNode.TypeName)}
+			// 未注册的标签静默忽略：不影响声明求值。
+			continue
 		}
 		instance, err := createTagInstance(rt, cls, tagNode, env)
 		if err != nil {
