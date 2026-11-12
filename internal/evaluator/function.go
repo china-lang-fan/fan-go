@@ -74,10 +74,31 @@ func evalFunctionLiteral(node *ast.FunctionLiteral, env *Environment) (object.Ob
 		GroupSizes:   node.GroupSizes,
 		Signature:    node.Signature,
 	}
+	if node.Native != nil {
+		fn.bindNative(node.Native)
+	}
 	if err := processFunctionTags(env.Runtime(), fn, node.Tags, env); err != nil {
 		return nil, err
 	}
 	return fn, nil
+}
+
+// bindNative 按本地绑定声明的完整 spec 查询当前运行实例的原生函数表。
+// 命中则把实现写入 fn.Impl（可变参函数包一层可变参解包）；未命中不写 Impl、
+// 不报错，调用时由 applyFunctionWithPanic 自然回退执行函数体。
+func (fn *Function) bindNative(native *ast.NativeDecl) {
+	rt := fn.Env.Runtime()
+	if rt == nil {
+		return
+	}
+	impl, ok := rt.nativeFunctions[native.Spec]
+	if !ok {
+		return
+	}
+	if targetIsVariadic(fn) {
+		impl = &variadicUnwrapCallable{callable: impl}
+	}
+	fn.Impl = impl
 }
 
 func evalMemberExpression(node *ast.MemberExpr, env *Environment) (object.Object, error) {
