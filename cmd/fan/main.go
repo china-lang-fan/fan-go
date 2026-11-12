@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"fan/internal/evaluator"
-	"fan/internal/lsp"
 	"fan/internal/object"
 	"fan/internal/parser"
 	"fan/internal/testrun"
@@ -53,8 +52,6 @@ func run(args []string) error {
 		return nil
 	case "交互", "repl":
 		return runREPL(os.Stdin, os.Stdout)
-	case "lsp":
-		return lsp.NewServer(os.Stdin, os.Stdout).Run()
 	case "帮助", "help", "-h", "--help":
 		printUsage()
 		return nil
@@ -139,7 +136,6 @@ func printUsage() {
 	fmt.Println("  fan 运行|run <脚本.fan> [参数...]   运行脚本")
 	fmt.Println("  fan 测试|test [路径]                运行测试")
 	fmt.Println("  fan 交互|repl                       进入交互模式")
-	fmt.Println("  fan lsp                             启动语言服务器（供编辑器接入）")
 	fmt.Println("  fan 版本|version                    显示版本")
 	fmt.Println("  fan 帮助|help                       显示帮助")
 	fmt.Println()
