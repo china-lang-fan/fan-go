@@ -263,7 +263,7 @@ func init() {
 	RegisterNativeFunction("打印", nativePrint)
 	RegisterNativeFunction("打印行", nativePrintLine)
 	// 标签工具模块（fan-sdk/库/标签工具.凡）的注册入口，与 Rust 版
-	// fan-ext-tag / 默认回落暴露的原生名保持一致。
+	// 静态编入的 tagRegisterHandler 原生名保持一致。
 	RegisterNativeFunction("tag.tagRegisterHandler", func(rt *Runtime, args []object.Object) ([]object.Object, error) {
 		if len(args) != 2 {
 			return nil, fmt.Errorf("注册标签处理 需要 2 个参数")
