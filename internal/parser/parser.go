@@ -325,13 +325,42 @@ func (p *Parser) parseSwitchBranch() (ast.SwitchBranch, bool) {
 		p.addError(p.cur, "判断 分支应以 为、当 或 其他 开头")
 		return branch, false
 	}
+	// `为/当/其他 … 则 …` 或 `… 时 …`：显式引导词后既允许同一行的单条
+	// 语句，也允许换行接多行块；不写引导词时维持原「换行缩进块」语法。
+	var body *ast.BlockStmt
+	var ok bool
+	if p.cur.Type == token.CASETHEN {
+		p.next()
+		body, ok = p.parseSwitchThenBody()
+		if !ok {
+			return branch, false
+		}
+		branch.Body = body
+		return branch, true
+	}
 	p.skipStatementEnd()
-	body, ok := p.parseSwitchBody()
+	body, ok = p.parseSwitchBody()
 	if !ok {
 		return branch, false
 	}
 	branch.Body = body
 	return branch, true
+}
+
+// parseSwitchThenBody 解析 则/时 引导词后的分支体：同一行跟单条语句，
+// 或引导词后紧跟换行时按普通缩进块解析多条语句。
+func (p *Parser) parseSwitchThenBody() (*ast.BlockStmt, bool) {
+	if p.cur.Type == token.NEWLINE || p.cur.Type == token.EOF {
+		return p.parseSwitchBody()
+	}
+	pos := ast.Position{Line: p.cur.Line, Column: p.cur.Column}
+	stmt := p.parseStatement()
+	if stmt == nil {
+		return nil, false
+	}
+	// 消费单行语句后的换行，使下一轮能读到分支头或 结束
+	p.skipStatementEnd()
+	return &ast.BlockStmt{Position: pos, Statements: []ast.Statement{stmt}}, true
 }
 
 func (p *Parser) parseSwitchBody() (*ast.BlockStmt, bool) {

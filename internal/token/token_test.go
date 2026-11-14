@@ -40,6 +40,8 @@ func TestLookupKeyword(t *testing.T) {
 		{"非", NOT},
 		{"判断", SWITCH},
 		{"其他", DEFAULT},
+		{"则", CASETHEN},
+		{"时", CASETHEN},
 		{"如果", IF},
 		{"那么", THEN},
 		{"否则", ELSE},

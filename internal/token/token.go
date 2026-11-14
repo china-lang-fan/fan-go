@@ -85,11 +85,12 @@ const (
 	FALSE Type = "FALSE"
 	NIL   Type = "NIL"
 
-	IF      Type = "IF"
-	SWITCH  Type = "SWITCH"
-	CASE    Type = "CASE"
-	DEFAULT Type = "DEFAULT"
-	THEN    Type = "THEN"
+	IF       Type = "IF"
+	SWITCH   Type = "SWITCH"
+	CASE     Type = "CASE"
+	DEFAULT  Type = "DEFAULT"
+	CASETHEN Type = "CASETHEN"
+	THEN     Type = "THEN"
 	ELSE    Type = "ELSE"
 	ELSEIF  Type = "ELSEIF"
 	END     Type = "END"
@@ -177,6 +178,8 @@ var keywords = map[string]Type{
 	"右移":   SHR,
 	"判断":   SWITCH,
 	"其他":   DEFAULT,
+	"则":    CASETHEN,
+	"时":    CASETHEN,
 	"如果":   IF,
 	"那么":   THEN,
 	"否则":   ELSE,
