@@ -35,8 +35,10 @@ jobs:
           go-version-file: go.mod
 
       - name: 发布前检查
+        # 关闭 unsafeptr：FFI 必须把系统调用返回的 uintptr 转回 unsafe.Pointer，
+        # 这是该分析器无法识别的合法边界转换；其余 vet 检查全部保留，与 ci 门禁一致。
         run: |
-          go vet ./...
+          go vet -unsafeptr=false ./...
           go test ./...
 
       - name: 标准库测试（fan test）
