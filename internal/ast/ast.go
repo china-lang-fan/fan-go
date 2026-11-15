@@ -18,6 +18,7 @@ const (
 	TypeError  DeclType = "错误"
 	TypeByte   DeclType = "字节"
 	TypeChar   DeclType = "字符"
+	TypeHandle DeclType = "句柄"
 )
 
 type Position struct {

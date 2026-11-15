@@ -22,6 +22,8 @@ func DeepEqual(a, b Object) bool {
 		return left.Value == b.(*Char).Value
 	case *Nil:
 		return true
+	case *Handle:
+		return left.ID == b.(*Handle).ID
 	case *Array:
 		right := b.(*Array)
 		if len(left.Elements) != len(right.Elements) {

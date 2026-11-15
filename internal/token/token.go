@@ -80,6 +80,7 @@ const (
 	TYPE_ERROR  Type = "TYPE_ERROR"
 	TYPE_BYTE   Type = "TYPE_BYTE"
 	TYPE_CHAR   Type = "TYPE_CHAR"
+	TYPE_HANDLE Type = "TYPE_HANDLE"
 
 	TRUE  Type = "TRUE"
 	FALSE Type = "FALSE"
@@ -91,9 +92,9 @@ const (
 	DEFAULT  Type = "DEFAULT"
 	CASETHEN Type = "CASETHEN"
 	THEN     Type = "THEN"
-	ELSE    Type = "ELSE"
-	ELSEIF  Type = "ELSEIF"
-	END     Type = "END"
+	ELSE     Type = "ELSE"
+	ELSEIF   Type = "ELSEIF"
+	END      Type = "END"
 
 	WHILE     Type = "WHILE"
 	LOOP      Type = "LOOP"
@@ -144,6 +145,7 @@ var keywords = map[string]Type{
 	"错误":   TYPE_ERROR,
 	"字节":   TYPE_BYTE,
 	"字符":   TYPE_CHAR,
+	"句柄":   TYPE_HANDLE,
 	"真":    TRUE,
 	"假":    FALSE,
 	"空":    NIL,

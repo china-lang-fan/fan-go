@@ -241,7 +241,7 @@ func (p *Parser) parseStatement() ast.Statement {
 		p.cur.Type == token.TYPE_STRING || p.cur.Type == token.TYPE_BOOL ||
 		p.cur.Type == token.TYPE_ARRAY || p.cur.Type == token.TYPE_DICT ||
 		p.cur.Type == token.TYPE_ERROR || p.cur.Type == token.TYPE_BYTE ||
-		p.cur.Type == token.TYPE_CHAR:
+		p.cur.Type == token.TYPE_CHAR || p.cur.Type == token.TYPE_HANDLE:
 		if p.peek.Type == token.IDENT {
 			return p.parseVarDecl()
 		}
@@ -1281,6 +1281,10 @@ func (p *Parser) parsePrefix() ast.Expression {
 		return node
 	case token.TYPE_CHAR:
 		node := &ast.Identifier{Position: pos, Name: "字符"}
+		p.next()
+		return node
+	case token.TYPE_HANDLE:
+		node := &ast.Identifier{Position: pos, Name: "句柄"}
 		p.next()
 		return node
 	case token.INC:
@@ -2575,6 +2579,8 @@ func parseDeclType(t token.Type) ast.DeclType {
 		return ast.TypeByte
 	case token.TYPE_CHAR:
 		return ast.TypeChar
+	case token.TYPE_HANDLE:
+		return ast.TypeHandle
 	}
 	return ast.TypeAny
 }
@@ -2583,7 +2589,8 @@ func isTypeToken(t token.Type) bool {
 	return t == token.TYPE_INT || t == token.TYPE_FLOAT ||
 		t == token.TYPE_STRING || t == token.TYPE_BOOL ||
 		t == token.TYPE_ARRAY || t == token.TYPE_DICT ||
-		t == token.TYPE_ERROR || t == token.TYPE_BYTE || t == token.TYPE_CHAR
+		t == token.TYPE_ERROR || t == token.TYPE_BYTE || t == token.TYPE_CHAR ||
+		t == token.TYPE_HANDLE
 }
 
 // isTypePositionToken 判断当前 token 能否作为类型位置上的一个类型名。
@@ -2645,7 +2652,7 @@ func isFunctionNameToken(t token.Type) bool {
 	switch t {
 	case token.TYPE_INT, token.TYPE_FLOAT, token.TYPE_STRING, token.TYPE_BOOL,
 		token.TYPE_ARRAY, token.TYPE_DICT, token.TYPE_ERROR,
-		token.TYPE_BYTE, token.TYPE_CHAR:
+		token.TYPE_BYTE, token.TYPE_CHAR, token.TYPE_HANDLE:
 		return true
 	}
 	return false

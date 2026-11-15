@@ -83,15 +83,20 @@ func evalFunctionLiteral(node *ast.FunctionLiteral, env *Environment) (object.Ob
 	return fn, nil
 }
 
-// bindNative 按本地绑定声明的完整 spec 查询当前运行实例的原生函数表。
-// 命中则把实现写入 fn.Impl（可变参函数包一层可变参解包）；未命中不写 Impl、
-// 不报错，调用时由 applyFunctionWithPanic 自然回退执行函数体。
+// bindNative 按本地绑定声明解析原生实现。
+// 带模块前缀的绑定（如 ffi.open）优先按完整 spec 查注册表，让不同模块可安全
+// 复用 open 这类短名而不互相覆盖；查不到再回退按 "." 之后的段名查，兼容历史
+// ext 内建（jsonEncode 等自带前缀的全名）。未命中不写 Impl、不报错，调用时由
+// applyFunctionWithPanic 自然回退执行函数体。
 func (fn *Function) bindNative(native *ast.NativeDecl) {
 	rt := fn.Env.Runtime()
 	if rt == nil {
 		return
 	}
 	impl, ok := rt.nativeFunctions[native.Spec]
+	if !ok && native.Module != "" {
+		impl, ok = rt.nativeFunctions[native.Name]
+	}
 	if !ok {
 		return
 	}

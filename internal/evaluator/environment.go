@@ -317,6 +317,11 @@ func checkSingleDeclType(dt ast.DeclType, val object.Object, env *Environment) e
 			return nil
 		}
 		return fmt.Errorf("类型不匹配：声明为 字符，实际为 %s", val.Kind())
+	case ast.TypeHandle:
+		if val.Kind() == object.KindHandle {
+			return nil
+		}
+		return fmt.Errorf("类型不匹配：声明为 句柄，实际为 %s", val.Kind())
 	default:
 		if val.Kind() == object.KindNil {
 			return nil

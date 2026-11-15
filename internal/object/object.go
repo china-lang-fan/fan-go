@@ -14,6 +14,7 @@ const (
 	KindBool   Kind = "布尔"
 	KindByte   Kind = "字节"
 	KindChar   Kind = "字符"
+	KindHandle Kind = "句柄"
 	KindNil    Kind = "空"
 )
 

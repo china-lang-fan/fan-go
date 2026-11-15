@@ -33,6 +33,8 @@ func primitiveKindFromName(name string) (string, bool) {
 		return "byte", true
 	case "字符":
 		return "char", true
+	case "句柄":
+		return "handle", true
 	}
 	return "", false
 }

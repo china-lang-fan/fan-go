@@ -68,6 +68,8 @@ func runtimeTypeName(value object.Object) string {
 		return "byte"
 	case *object.Char:
 		return "char"
+	case *object.Handle:
+		return "handle"
 	case *object.Nil:
 		return "nil"
 	case *object.Array:
