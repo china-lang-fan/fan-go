@@ -135,5 +135,5 @@ func builtinChar(pos ast.Position, args []object.Object) (object.Object, error) 
 	if !utf8.ValidRune(r) {
 		return nil, &EvalError{Pos: pos, Reason: "char 参数不是有效的 Unicode 编码"}
 	}
-	return &object.String{Value: string(r)}, nil
+	return &object.Char{Value: r}, nil
 }

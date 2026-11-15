@@ -39,8 +39,8 @@ func TestBuiltinOrd(t *testing.T) {
 }
 
 func TestBuiltinChar(t *testing.T) {
-	mustString(t, "char(65)", "A")
-	mustString(t, "char(20961)", "凡")
+	mustChar(t, "char(65)", 'A')
+	mustChar(t, "char(20961)", '凡')
 	mustError(t, "char(\"x\")", "必须是整数")
 }
 

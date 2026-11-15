@@ -77,6 +77,21 @@ func mustString(t *testing.T, src string, want string) {
 	}
 }
 
+func mustChar(t *testing.T, src string, want rune) {
+	t.Helper()
+	res, err := runSource(t, src)
+	if err != nil {
+		t.Fatalf("%q 运行错误：%v", src, err)
+	}
+	c, ok := res.(*object.Char)
+	if !ok {
+		t.Fatalf("%q 期望字符，实际 %T：%s", src, res, res.Inspect())
+	}
+	if c.Value != want {
+		t.Fatalf("%q 期望 %q，实际 %q", src, want, c.Value)
+	}
+}
+
 func mustBool(t *testing.T, src string, want bool) {
 	t.Helper()
 	res, err := runSource(t, src)
