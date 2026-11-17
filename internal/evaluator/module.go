@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"fan/internal/ast"
@@ -56,6 +57,11 @@ func defaultModulesDirs(base string) []string {
 	// fan-sdk 是共享标准库目录，可通过 FAN_SDK 显式指定；未设置时回退到
 	// 可执行文件旁与系统安装位置。搜索顺序与 Rust 版 loader 保持一致。
 	add(base)
+	// 第三方依赖优先：上溯定位项目根的 `依赖/` 目录，把各包根加入搜索路径，
+	// 与 Rust 版 dependency_dirs 对称，使第三方包可用根相对路径导入。
+	for _, depRoot := range dependencyDirs(base) {
+		add(depRoot)
+	}
 	if env := os.Getenv("FAN_SDK"); env != "" {
 		add(env)
 	}
@@ -75,6 +81,43 @@ func defaultModulesDirs(base string) []string {
 
 func hasFanExtension(path string) bool {
 	return strings.HasSuffix(path, ".fan") || strings.HasSuffix(path, ".凡")
+}
+
+// dependencyDirs 从脚本目录逐级上溯，定位项目根的 `依赖/` 目录，返回其中各
+// 第三方包根。包根即模块搜索根，使包内 `库/...` 布局可用根相对路径导入。
+// 与 Rust 版 fan-eval::module::dependency_dirs 对称（纯文件约定，不解析清单）。
+func dependencyDirs(base string) []string {
+	const depsDir = "依赖"
+	current, err := filepath.Abs(base)
+	if err != nil {
+		return nil
+	}
+	if info, statErr := os.Stat(current); statErr == nil && !info.IsDir() {
+		current = filepath.Dir(current)
+	}
+	for i := 0; i < 8; i++ {
+		deps := filepath.Join(current, depsDir)
+		if info, statErr := os.Stat(deps); statErr == nil && info.IsDir() {
+			entries, readErr := os.ReadDir(deps)
+			if readErr != nil {
+				return nil
+			}
+			roots := make([]string, 0, len(entries))
+			for _, entry := range entries {
+				if entry.IsDir() {
+					roots = append(roots, filepath.Join(deps, entry.Name()))
+				}
+			}
+			sort.Strings(roots)
+			return roots
+		}
+		parent := filepath.Dir(current)
+		if parent == current {
+			break
+		}
+		current = parent
+	}
+	return nil
 }
 
 func existingPath(path string) (string, bool) {
