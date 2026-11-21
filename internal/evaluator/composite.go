@@ -2,6 +2,7 @@ package evaluator
 
 import (
 	"fmt"
+	"strings"
 
 	"fan/internal/ast"
 	"fan/internal/object"
@@ -37,7 +38,16 @@ func resolveModelClass(model ast.Expression, env *Environment) (*Class, error) {
 	case *ast.Identifier:
 		val, ok := env.Get(n.Name)
 		if !ok {
-			return nil, fmt.Errorf("未定义的模型：%s", n.Name)
+			// 导入模块成员的裸名回退层：歧义裸用报错，提示限定访问。
+			imported, sources, exists := env.getImported(n.Name)
+			if !exists {
+				return nil, fmt.Errorf("未定义的模型：%s", n.Name)
+			}
+			if len(sources) >= 2 {
+				return nil, fmt.Errorf("名字 %s 在模块 [%s] 中冲突，请用 模块名.%s 限定访问",
+					n.Name, strings.Join(sources, "、"), n.Name)
+			}
+			val = imported
 		}
 		if cls, ok := val.(*Class); ok {
 			return cls, nil

@@ -44,6 +44,17 @@ type binding struct {
 	declType   ast.DeclType
 }
 
+// importedEntry 是导入模块成员在当前模块的裸名回退绑定。
+// 多模块导出同名成员时 sources 累积到 ≥2 即歧义：裸用报错并提示限定访问。
+type importedEntry struct {
+	value   object.Object
+	sources []string
+}
+
+func (e *importedEntry) ambiguous() bool {
+	return len(e.sources) >= 2
+}
+
 type Environment struct {
 	store             map[string]*binding
 	outer             *Environment
@@ -59,6 +70,8 @@ type Environment struct {
 	throughModule     *object.Module
 	pendingVisibility ast.Visibility
 	pendingVisSet     bool
+	// 导入模块成员的裸名回退表，模块内所有内嵌作用域共享同一份。
+	imported map[string]*importedEntry
 }
 
 // NewEnvironment 创建一个绑定到新运行实例的根环境。
@@ -73,6 +86,7 @@ func newEnvironment(rt *Runtime) *Environment {
 		rt:                rt,
 		primitiveRegistry: newPrimitiveMethodRegistry(),
 		mixfixRegistry:    newMixfixFunctionRegistry(),
+		imported:          map[string]*importedEntry{},
 	}
 }
 
@@ -118,6 +132,10 @@ func (e *Environment) SetLoader(l *Loader) {
 }
 
 func NewEnclosedEnvironment(outer *Environment) *Environment {
+	imported := outer.imported
+	if imported == nil {
+		imported = map[string]*importedEntry{}
+	}
 	return &Environment{
 		store:        map[string]*binding{},
 		outer:        outer,
@@ -126,6 +144,7 @@ func NewEnclosedEnvironment(outer *Environment) *Environment {
 		SourceFile:   outer.SourceFile,
 		Loader:       outer.Loader,
 		moduleExport: outer.moduleExport,
+		imported:     imported,
 		mixfixRegistry: func() *mixfixFunctionRegistry {
 			if outer.mixfixRegistry != nil {
 				return outer.mixfixRegistry
@@ -136,6 +155,44 @@ func NewEnclosedEnvironment(outer *Environment) *Environment {
 			return newMixfixFunctionRegistry()
 		}(),
 	}
+}
+
+// addImportedMembers 把一个已导入模块的全部公开成员登记到裸名回退表。
+// 同一模块重复导入按来源去重，不同模块同名则进入歧义状态。
+func (e *Environment) addImportedMembers(moduleName string, mod *object.Module) {
+	if e.imported == nil {
+		e.imported = map[string]*importedEntry{}
+	}
+	for name, val := range mod.Exports {
+		entry, ok := e.imported[name]
+		if !ok {
+			entry = &importedEntry{value: val}
+			e.imported[name] = entry
+		}
+		duplicate := false
+		for _, s := range entry.sources {
+			if s == moduleName {
+				duplicate = true
+				break
+			}
+		}
+		if !duplicate {
+			entry.sources = append(entry.sources, moduleName)
+		}
+		if len(entry.sources) == 1 {
+			entry.value = val
+		}
+	}
+}
+
+// getImported 查询导入回退层：返回 (值, 来源列表, 是否存在)。
+// 来源列表长度 ≥2 表示歧义，调用方应据 sources 报错而非使用值。
+func (e *Environment) getImported(name string) (object.Object, []string, bool) {
+	entry, ok := e.imported[name]
+	if !ok {
+		return nil, nil, false
+	}
+	return entry.value, entry.sources, true
 }
 
 func (e *Environment) mixfixFunctions() *mixfixFunctionRegistry {

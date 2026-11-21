@@ -355,6 +355,14 @@ func evalIdentifier(ident *ast.Identifier, env *Environment) (object.Object, err
 				return exp, nil
 			}
 		}
+		// 导入模块成员的裸名回退层：局部未命中时查已导入模块的公开成员。
+		if imported, sources, exists := env.getImported(ident.Name); exists {
+			if len(sources) >= 2 {
+				return nil, fmt.Errorf("名字 %s 在模块 [%s] 中冲突，请用 模块名.%s 限定访问",
+					ident.Name, strings.Join(sources, "、"), ident.Name)
+			}
+			return imported, nil
+		}
 		return nil, fmt.Errorf("变量 %s 未声明", ident.Name)
 	}
 	return val, nil

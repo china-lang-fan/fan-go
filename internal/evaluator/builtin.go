@@ -217,6 +217,20 @@ func evalCallExpr(node *ast.CallExpr, env *Environment) (object.Object, error) {
 		}
 	}
 	if !ok {
+		// 导入模块成员的裸名回退层：歧义裸用报错，提示限定访问。
+		if imported, sources, exists := env.getImported(ident.Name); exists {
+			if len(sources) >= 2 {
+				return nil, &EvalError{
+					Pos: node.Position,
+					Reason: fmt.Sprintf("名字 %s 在模块 [%s] 中冲突，请用 模块名.%s 限定访问",
+						ident.Name, strings.Join(sources, "、"), ident.Name),
+				}
+			}
+			val = imported
+			ok = true
+		}
+	}
+	if !ok {
 		return nil, &EvalError{Pos: node.Position, Reason: fmt.Sprintf("未知函数：%s", ident.Name)}
 	}
 	switch callable := val.(type) {

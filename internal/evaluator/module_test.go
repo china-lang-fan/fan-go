@@ -3,6 +3,7 @@ package evaluator
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"fan/internal/ast"
@@ -269,5 +270,74 @@ func TestThroughModuleRejectsPrivate(t *testing.T) {
 	src := "导入 \"" + filepath.Join(dir, "数学工具") + "\" 作为 工具\n通过 工具 内部()"
 	if _, err := runModuleSource(t, src); err == nil {
 		t.Fatal("通过 模块 不应访问非公开函数")
+	}
+}
+
+func TestImportBareNameAccess(t *testing.T) {
+	dir := writeTempModule(t, "运算", `
+公开 变量 版本 = "1.0"
+公开 函数 加倍(整数 n) -> 整数
+    返回 n 乘 2
+结束
+公开 模型 圆
+    属性 半径
+结束
+`)
+	src := "导入 \"" + filepath.Join(dir, "运算") + "\" 作为 运算模块\n" +
+		"[加倍(21), 版本, 圆{半径: 3}.半径, 运算模块.加倍(5)]"
+	res, err := runModuleSource(t, src)
+	if err != nil {
+		t.Fatalf("裸名访问失败：%v", err)
+	}
+	if res.Inspect() != "[42, 1.0, 3, 10]" {
+		t.Fatalf("裸名访问结果错误：%s", res.Inspect())
+	}
+}
+
+func TestImportLocalShadowsMember(t *testing.T) {
+	dir := writeTempModule(t, "运算", `
+公开 函数 加倍(整数 n) -> 整数
+    返回 n 乘 2
+结束
+`)
+	src := "导入 \"" + filepath.Join(dir, "运算") + "\" 作为 运算模块\n" +
+		"函数 加倍(整数 n) -> 整数\n    返回 n 加 1\n结束\n" +
+		"[加倍(10), 运算模块.加倍(10)]"
+	res, err := runModuleSource(t, src)
+	if err != nil {
+		t.Fatalf("遮蔽访问失败：%v", err)
+	}
+	if res.Inspect() != "[11, 20]" {
+		t.Fatalf("局部遮蔽结果错误：%s", res.Inspect())
+	}
+}
+
+func TestImportAmbiguousBareNameErrors(t *testing.T) {
+	dirA := writeTempModule(t, "甲", `
+公开 函数 共同() -> 整数
+    返回 1
+结束
+`)
+	dirB := writeTempModule(t, "乙", `
+公开 函数 共同() -> 整数
+    返回 2
+结束
+`)
+	src := "导入 \"" + filepath.Join(dirA, "甲") + "\" 作为 甲模块\n" +
+		"导入 \"" + filepath.Join(dirB, "乙") + "\" 作为 乙模块\n" +
+		"共同()"
+	if _, err := runModuleSource(t, src); err == nil || !strings.Contains(err.Error(), "冲突") {
+		t.Fatalf("歧义裸名应报冲突，实际：%v", err)
+	}
+	// 限定访问不受歧义影响。
+	okSrc := "导入 \"" + filepath.Join(dirA, "甲") + "\" 作为 甲模块\n" +
+		"导入 \"" + filepath.Join(dirB, "乙") + "\" 作为 乙模块\n" +
+		"[甲模块.共同(), 乙模块.共同()]"
+	res, err := runModuleSource(t, okSrc)
+	if err != nil {
+		t.Fatalf("限定访问不应失败：%v", err)
+	}
+	if res.Inspect() != "[1, 2]" {
+		t.Fatalf("限定访问结果错误：%s", res.Inspect())
 	}
 }

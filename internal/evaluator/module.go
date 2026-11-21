@@ -248,6 +248,9 @@ func evalImportStmt(stmt *ast.ImportStmt, env *Environment) (object.Object, erro
 	if err := env.declare(stmt.Name, mod, true, ast.TypeAny); err != nil {
 		return nil, &EvalError{Pos: stmt.Position, Reason: err.Error()}
 	}
+	// 把模块公开成员登记到裸名回退层：局部未命中时可直接用成员名，
+	// 多模块同名进入歧义状态，裸用时由 evalIdentifier 报错并提示限定访问。
+	env.addImportedMembers(stmt.Name, mod)
 	return mod, nil
 }
 
