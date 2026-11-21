@@ -9,6 +9,7 @@ import (
 
 	"fan/internal/ast"
 	"fan/internal/parser"
+	"fan/internal/sdkpath"
 )
 
 func copySDKFile(t *testing.T, dir, name string) {
@@ -17,7 +18,11 @@ func copySDKFile(t *testing.T, dir, name string) {
 	if err := os.MkdirAll(libDir, 0o700); err != nil {
 		t.Fatalf("创建临时 库 目录失败：%v", err)
 	}
-	data, err := os.ReadFile(filepath.Join("..", "..", "..", "fan-sdk", "库", name))
+	srcPath, err := sdkpath.LibFile(name)
+	if err != nil {
+		t.Fatalf("定位 库/%s 失败：%v", name, err)
+	}
+	data, err := os.ReadFile(srcPath)
 	if err != nil {
 		t.Fatalf("读取 库/%s 失败：%v", name, err)
 	}

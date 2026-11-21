@@ -4,35 +4,19 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"fan/internal/sdkpath"
 )
 
 // sdkRootDir 定位共享标准库 fan-sdk 的根目录（其下含 库/ 与 测试/）。
-// 先认 FAN_SDK 环境变量，再按工作区布局从测试工作目录逐级向上找。
+// 解析逻辑统一收敛到 internal/sdkpath：先认 FAN_SDK，再逐级向上找。
 func sdkRootDir(t *testing.T) string {
 	t.Helper()
-	if env := os.Getenv("FAN_SDK"); env != "" {
-		if info, err := os.Stat(filepath.Join(env, "库")); err == nil && info.IsDir() {
-			abs, _ := filepath.Abs(env)
-			return abs
-		}
-	}
-	dir, err := os.Getwd()
+	root, err := sdkpath.Root()
 	if err != nil {
-		t.Fatalf("获取工作目录失败：%v", err)
+		t.Fatal(err)
 	}
-	for i := 0; i < 6; i++ {
-		candidate := filepath.Join(dir, "fan-sdk")
-		if info, err := os.Stat(filepath.Join(candidate, "库")); err == nil && info.IsDir() {
-			return candidate
-		}
-		parent := filepath.Dir(dir)
-		if parent == dir {
-			break
-		}
-		dir = parent
-	}
-	t.Fatal("未找到 fan-sdk：请用 FAN_SDK 环境变量指向它，或放在仓库同级目录")
-	return ""
+	return root
 }
 
 // setupSDKModuleEnv 把指定标准库模块（仅文件名，如 "系统.凡"、"数学.凡"）

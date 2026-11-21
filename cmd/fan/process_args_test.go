@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"fan/internal/sdkpath"
 )
 
 func TestRunPassesScriptArgs(t *testing.T) {
@@ -13,7 +15,11 @@ func TestRunPassesScriptArgs(t *testing.T) {
 		t.Fatalf("创建临时 库 目录失败：%v", err)
 	}
 	for _, name := range []string{"系统.凡", "转换.凡", "进程.凡"} {
-		data, err := os.ReadFile(filepath.Join("..", "..", "..", "fan-sdk", "库", name))
+		srcPath, err := sdkpath.LibFile(name)
+		if err != nil {
+			t.Fatalf("定位 库/%s 失败：%v", name, err)
+		}
+		data, err := os.ReadFile(srcPath)
 		if err != nil {
 			t.Fatalf("读取 库/%s 失败：%v", name, err)
 		}
